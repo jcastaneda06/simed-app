@@ -1,14 +1,14 @@
-import { headers } from "next/headers";
+import { headers } from 'next/headers';
 
 // lib/apiClient.js
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 export const apiClient = {
   async fetch(endpoint: string, options: any = {}) {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
 
     const defaultHeaders = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     };
 
@@ -23,18 +23,18 @@ export const apiClient = {
 
       if (response.status === 401) {
         // Token expirado o inválido
-        localStorage.removeItem("token");
-        window.location.href = "/login";
+        localStorage.removeItem('token');
+        window.location.href = '/login';
         return;
       }
 
       if (!response.ok) {
-        throw new Error("Error en la petición");
+        throw new Error('Error en la petición');
       }
 
       return await response.json();
     } catch (error) {
-      console.error("API Error:", error);
+      console.error('API Error:', error);
       throw error;
     }
   },
@@ -45,21 +45,21 @@ export const apiClient = {
 
   post(endpoint: string, data: any) {
     return this.fetch(endpoint, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   },
 
   put(endpoint: string, data: any) {
     return this.fetch(endpoint, {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   },
 
   delete(endpoint: string) {
     return this.fetch(endpoint, {
-      method: "DELETE",
+      method: 'DELETE',
     });
   },
 };

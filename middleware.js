@@ -12,5 +12,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/', '/interconsultas/:path*']
+  matcher: ['/', '/interconsultas/:path*'],
 };

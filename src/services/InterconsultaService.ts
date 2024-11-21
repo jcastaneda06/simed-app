@@ -1,44 +1,44 @@
 // src/services/interconsultaService.js
 
-import { Filtros } from "@/types/Filtros";
+import { Filtros } from '@/types/Filtros';
 
 export const obtenerInterconsultas = async (filtros: Filtros) => {
   try {
-    const usuario = localStorage.getItem("usuario");
+    const usuario = localStorage.getItem('usuario');
     if (!usuario) {
-      throw new Error("No hay usuario autenticado");
+      throw new Error('No hay usuario autenticado');
     }
 
     const usuarioData = JSON.parse(usuario);
     if (!usuarioData.servicio?._id) {
-      throw new Error("No hay servicio asociado al usuario");
+      throw new Error('No hay servicio asociado al usuario');
     }
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      throw new Error("No hay token de autenticación");
+      throw new Error('No hay token de autenticación');
     }
 
-    let url = "/api/interconsultas";
+    let url = '/api/interconsultas';
 
     // Construcción de URL según filtros
-    if (filtros.tipo === "enviadas") {
+    if (filtros.tipo === 'enviadas') {
       url = `/api/interconsultas/enviadas/${usuarioData.servicio._id}`;
-    } else if (filtros.tipo === "recibidas") {
+    } else if (filtros.tipo === 'recibidas') {
       url = `/api/interconsultas/recibidas/${usuarioData.servicio._id}`;
     }
 
     // Añadir estado si existe
     if (filtros.estado) {
-      url += `${url.includes("?") ? "&" : "?"}estado=${filtros.estado}`;
+      url += `${url.includes('?') ? '&' : '?'}estado=${filtros.estado}`;
     }
 
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
     });
 
@@ -52,12 +52,12 @@ export const obtenerInterconsultas = async (filtros: Filtros) => {
     const data = await response.json();
 
     if (!data.exito) {
-      throw new Error(data.error || "Error al procesar los datos");
+      throw new Error(data.error || 'Error al procesar los datos');
     }
 
     return data.data || [];
   } catch (error) {
-    console.error("Error en obtenerInterconsultas:", error);
+    console.error('Error en obtenerInterconsultas:', error);
     throw error; // Re-lanzamos el error para manejarlo en el componente
   }
 };

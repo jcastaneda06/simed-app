@@ -1,12 +1,12 @@
-import { FC, PropsWithChildren } from "react";
+import { FC, PropsWithChildren } from 'react';
 
 export const Alert: FC<PropsWithChildren<{ variant: string }>> = ({
   children,
-  variant = "default",
+  variant = 'default',
 }) => {
   const variants: { [key: string]: string } = {
-    default: "bg-gray-100 text-gray-900 border-gray-200",
-    destructive: "bg-red-50 text-red-900 border-red-200",
+    default: 'bg-gray-100 text-gray-900 border-gray-200',
+    destructive: 'bg-red-50 text-red-900 border-red-200',
   };
 
   return (

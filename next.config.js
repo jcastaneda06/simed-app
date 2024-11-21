@@ -5,10 +5,10 @@ const nextConfig = {
       {
         source: '/api/:path*',
         destination: 'http://localhost:3000/api/:path*',
-        basePath: false
-      }
-    ]
-  }
-}
+        basePath: false,
+      },
+    ];
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

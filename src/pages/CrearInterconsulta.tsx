@@ -1,5 +1,5 @@
-import Layout from "@/layout/Layout";
-import { useState } from "react";
+import Layout from '@/layout/Layout';
+import { useState } from 'react';
 import {
   ChevronDown,
   ChevronUp,
@@ -7,7 +7,7 @@ import {
   Clock,
   CheckCircle2,
   MessageSquare,
-} from "lucide-react";
+} from 'lucide-react';
 
 const CrearInterconsulta = () => {
   const [loading, setLoading] = useState(false);
@@ -15,50 +15,50 @@ const CrearInterconsulta = () => {
   const [success, setSuccess] = useState(false);
 
   const servicios = [
-    { id: "672e05bad3ce20d6407a5143", nombre: "Cirugía" },
-    { id: "672e099e636c9f5552583436", nombre: "Medicina Interna" },
+    { id: '672e05bad3ce20d6407a5143', nombre: 'Cirugía' },
+    { id: '672e099e636c9f5552583436', nombre: 'Medicina Interna' },
   ];
 
   const [formData, setFormData] = useState<{ [key: string]: any }>({
     paciente: {
-      nombre: "",
-      edad: "",
-      numeroHistoria: "",
+      nombre: '',
+      edad: '',
+      numeroHistoria: '',
     },
-    servicioSolicitante: "",
-    servicioDestino: "",
-    objetivoConsulta: "",
-    historiaClinica: "",
+    servicioSolicitante: '',
+    servicioDestino: '',
+    objetivoConsulta: '',
+    historiaClinica: '',
     estadoClinico: {
-      subjetivo: "",
+      subjetivo: '',
       signosVitales: {
-        presionArterial: "",
-        frecuenciaCardiaca: "",
-        frecuenciaRespiratoria: "",
-        temperatura: "",
-        saturacionOxigeno: "",
+        presionArterial: '',
+        frecuenciaCardiaca: '',
+        frecuenciaRespiratoria: '',
+        temperatura: '',
+        saturacionOxigeno: '',
       },
     },
     laboratorios: {
-      resultados: "",
-      observaciones: "",
+      resultados: '',
+      observaciones: '',
     },
     imagenologia: {
-      tipo: "",
-      descripcion: "",
-      hallazgosRelevantes: "",
+      tipo: '',
+      descripcion: '',
+      hallazgosRelevantes: '',
     },
-    antecedentesPersonales: "",
-    antecedentesFamiliares: "",
-    alergias: "",
+    antecedentesPersonales: '',
+    antecedentesFamiliares: '',
+    alergias: '',
     medicamentos: {
-      preHospitalarios: "",
-      hospitalarios: "",
+      preHospitalarios: '',
+      hospitalarios: '',
     },
-    prioridad: "ALTA",
+    prioridad: 'ALTA',
   });
 
-  const handleChange = (e: any, section: any, subsection: any = "") => {
+  const handleChange = (e: any, section: any, subsection: any = '') => {
     const { name, value } = e.target;
 
     if (section && subsection) {
@@ -96,44 +96,44 @@ const CrearInterconsulta = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/interconsultas/crear",
+        'http://localhost:3000/api/interconsultas/crear',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(formData),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Error al crear la interconsulta");
+        throw new Error('Error al crear la interconsulta');
       }
 
       setSuccess(true);
       setFormData({
-        paciente: { nombre: "", edad: "", numeroHistoria: "" },
-        servicioSolicitante: "",
-        servicioDestino: "",
-        objetivoConsulta: "",
-        historiaClinica: "",
+        paciente: { nombre: '', edad: '', numeroHistoria: '' },
+        servicioSolicitante: '',
+        servicioDestino: '',
+        objetivoConsulta: '',
+        historiaClinica: '',
         estadoClinico: {
-          subjetivo: "",
+          subjetivo: '',
           signosVitales: {
-            presionArterial: "",
-            frecuenciaCardiaca: "",
-            frecuenciaRespiratoria: "",
-            temperatura: "",
-            saturacionOxigeno: "",
+            presionArterial: '',
+            frecuenciaCardiaca: '',
+            frecuenciaRespiratoria: '',
+            temperatura: '',
+            saturacionOxigeno: '',
           },
         },
-        laboratorios: { resultados: "", observaciones: "" },
-        imagenologia: { tipo: "", descripcion: "", hallazgosRelevantes: "" },
-        antecedentesPersonales: "",
-        antecedentesFamiliares: "",
-        alergias: "",
-        medicamentos: { preHospitalarios: "", hospitalarios: "" },
-        prioridad: "ALTA",
+        laboratorios: { resultados: '', observaciones: '' },
+        imagenologia: { tipo: '', descripcion: '', hallazgosRelevantes: '' },
+        antecedentesPersonales: '',
+        antecedentesFamiliares: '',
+        alergias: '',
+        medicamentos: { preHospitalarios: '', hospitalarios: '' },
+        prioridad: 'ALTA',
       });
     } catch (err: any) {
       setError(err.message);
@@ -181,7 +181,7 @@ const CrearInterconsulta = () => {
                 type="text"
                 name="nombre"
                 value={formData.paciente.nombre}
-                onChange={(e) => handleChange(e, "paciente")}
+                onChange={(e) => handleChange(e, 'paciente')}
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
@@ -194,7 +194,7 @@ const CrearInterconsulta = () => {
                 type="number"
                 name="edad"
                 value={formData.paciente.edad}
-                onChange={(e) => handleChange(e, "paciente")}
+                onChange={(e) => handleChange(e, 'paciente')}
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
@@ -207,7 +207,7 @@ const CrearInterconsulta = () => {
                 type="text"
                 name="numeroHistoria"
                 value={formData.paciente.numeroHistoria}
-                onChange={(e) => handleChange(e, "paciente")}
+                onChange={(e) => handleChange(e, 'paciente')}
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
@@ -325,7 +325,7 @@ const CrearInterconsulta = () => {
             <textarea
               name="subjetivo"
               value={formData.estadoClinico.subjetivo}
-              onChange={(e) => handleChange(e, "estadoClinico")}
+              onChange={(e) => handleChange(e, 'estadoClinico')}
               rows={3}
               className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               required
@@ -341,7 +341,7 @@ const CrearInterconsulta = () => {
                 name="presionArterial"
                 value={formData.estadoClinico.signosVitales.presionArterial}
                 onChange={(e) =>
-                  handleChange(e, "estadoClinico", "signosVitales")
+                  handleChange(e, 'estadoClinico', 'signosVitales')
                 }
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
@@ -356,7 +356,7 @@ const CrearInterconsulta = () => {
                 name="frecuenciaCardiaca"
                 value={formData.estadoClinico.signosVitales.frecuenciaCardiaca}
                 onChange={(e) =>
-                  handleChange(e, "estadoClinico", "signosVitales")
+                  handleChange(e, 'estadoClinico', 'signosVitales')
                 }
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
@@ -373,7 +373,7 @@ const CrearInterconsulta = () => {
                   formData.estadoClinico.signosVitales.frecuenciaRespiratoria
                 }
                 onChange={(e) =>
-                  handleChange(e, "estadoClinico", "signosVitales")
+                  handleChange(e, 'estadoClinico', 'signosVitales')
                 }
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
@@ -388,7 +388,7 @@ const CrearInterconsulta = () => {
                 name="temperatura"
                 value={formData.estadoClinico.signosVitales.temperatura}
                 onChange={(e) =>
-                  handleChange(e, "estadoClinico", "signosVitales")
+                  handleChange(e, 'estadoClinico', 'signosVitales')
                 }
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
@@ -403,7 +403,7 @@ const CrearInterconsulta = () => {
                 name="saturacionOxigeno"
                 value={formData.estadoClinico.signosVitales.saturacionOxigeno}
                 onChange={(e) =>
-                  handleChange(e, "estadoClinico", "signosVitales")
+                  handleChange(e, 'estadoClinico', 'signosVitales')
                 }
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
@@ -480,7 +480,7 @@ const CrearInterconsulta = () => {
               <textarea
                 name="preHospitalarios"
                 value={formData.medicamentos.preHospitalarios}
-                onChange={(e) => handleChange(e, "medicamentos")}
+                onChange={(e) => handleChange(e, 'medicamentos')}
                 rows={3}
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               />
@@ -492,7 +492,7 @@ const CrearInterconsulta = () => {
               <textarea
                 name="hospitalarios"
                 value={formData.medicamentos.hospitalarios}
-                onChange={(e) => handleChange(e, "medicamentos")}
+                onChange={(e) => handleChange(e, 'medicamentos')}
                 rows={3}
                 className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               />
@@ -518,7 +518,7 @@ const CrearInterconsulta = () => {
                   <textarea
                     name="resultados"
                     value={formData.laboratorios.resultados}
-                    onChange={(e) => handleChange(e, "laboratorios")}
+                    onChange={(e) => handleChange(e, 'laboratorios')}
                     rows={3}
                     className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
@@ -530,7 +530,7 @@ const CrearInterconsulta = () => {
                   <textarea
                     name="observaciones"
                     value={formData.laboratorios.observaciones}
-                    onChange={(e) => handleChange(e, "laboratorios")}
+                    onChange={(e) => handleChange(e, 'laboratorios')}
                     rows={2}
                     className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
@@ -550,7 +550,7 @@ const CrearInterconsulta = () => {
                     type="text"
                     name="tipo"
                     value={formData.imagenologia.tipo}
-                    onChange={(e) => handleChange(e, "imagenologia")}
+                    onChange={(e) => handleChange(e, 'imagenologia')}
                     className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
                 </div>
@@ -561,7 +561,7 @@ const CrearInterconsulta = () => {
                   <textarea
                     name="descripcion"
                     value={formData.imagenologia.descripcion}
-                    onChange={(e) => handleChange(e, "imagenologia")}
+                    onChange={(e) => handleChange(e, 'imagenologia')}
                     rows={2}
                     className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
@@ -573,7 +573,7 @@ const CrearInterconsulta = () => {
                   <textarea
                     name="hallazgosRelevantes"
                     value={formData.imagenologia.hallazgosRelevantes}
-                    onChange={(e) => handleChange(e, "imagenologia")}
+                    onChange={(e) => handleChange(e, 'imagenologia')}
                     rows={2}
                     className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
@@ -610,11 +610,11 @@ const CrearInterconsulta = () => {
             disabled={loading}
             className={`
                 px-4 py-2 rounded-md text-white font-medium
-                ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}
+                ${loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}
                 transition-colors duration-200
               `}
           >
-            {loading ? "Creando..." : "Crear Interconsulta"}
+            {loading ? 'Creando...' : 'Crear Interconsulta'}
           </button>
         </div>
       </form>

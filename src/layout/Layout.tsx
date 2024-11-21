@@ -1,7 +1,7 @@
-import React, { useState, useEffect, FC, PropsWithChildren } from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { User } from "lucide-react";
+import React, { useState, useEffect, FC, PropsWithChildren } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { User } from 'lucide-react';
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
@@ -11,13 +11,13 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     setIsClient(true);
-    const token = window.localStorage.getItem("token");
-    const usuarioGuardado = window.localStorage.getItem("usuario");
+    const token = window.localStorage.getItem('token');
+    const usuarioGuardado = window.localStorage.getItem('usuario');
     if (usuarioGuardado) {
       setUsuario(JSON.parse(usuarioGuardado));
     }
-    if (!token && router.pathname !== "/login") {
-      router.push("/login");
+    if (!token && router.pathname !== '/login') {
+      router.push('/login');
     }
   }, [router]);
 
@@ -27,14 +27,14 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
   }
 
   // Verificar token una vez que estamos en el cliente
-  const token = window.localStorage.getItem("token");
-  if (!token && router.pathname !== "/login") {
+  const token = window.localStorage.getItem('token');
+  if (!token && router.pathname !== '/login') {
     return null;
   }
 
   const navigationLinks = [
-    { href: "/", label: "Ver Interconsultas" },
-    { href: "/crear-interconsulta", label: "Crear Interconsulta" },
+    { href: '/', label: 'Ver Interconsultas' },
+    { href: '/crear-interconsulta', label: 'Crear Interconsulta' },
   ];
 
   return (
@@ -59,8 +59,8 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium
                       ${
                         router.pathname === link.href
-                          ? "border-blue-500 text-gray-900"
-                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                          ? 'border-blue-500 text-gray-900'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                       }`}
                   >
                     {link.label}
@@ -79,16 +79,16 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
                       {usuario.nombre || usuario.email}
                     </span>
                     <span className="ml-2 text-gray-500 text-xs">
-                      {usuario.rol || "Usuario"}
+                      {usuario.rol || 'Usuario'}
                     </span>
                   </div>
                 </div>
               )}
               <button
                 onClick={() => {
-                  window.localStorage.removeItem("token");
-                  window.localStorage.removeItem("usuario");
-                  router.push("/login");
+                  window.localStorage.removeItem('token');
+                  window.localStorage.removeItem('usuario');
+                  router.push('/login');
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
               >
@@ -106,8 +106,8 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
                   href={link.href}
                   className={`block pl-3 pr-4 py-2 text-base font-medium ${
                     router.pathname === link.href
-                      ? "bg-blue-50 border-l-4 border-blue-500 text-blue-700"
-                      : "border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+                      ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700'
+                      : 'border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
                   }`}
                 >
                   {link.label}

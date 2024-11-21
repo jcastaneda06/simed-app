@@ -1,5 +1,5 @@
-import { FC, useState } from "react";
-import { useRouter } from "next/router";
+import { FC, useState } from 'react';
+import { useRouter } from 'next/router';
 import {
   ChevronDown,
   ChevronUp,
@@ -7,8 +7,8 @@ import {
   Clock,
   CheckCircle2,
   MessageSquare,
-} from "lucide-react";
-import { Button } from "@/components/button/Button";
+} from 'lucide-react';
+import { Button } from '@/components/button/Button';
 
 type InterconsultaProps = {
   interconsulta: any;
@@ -29,21 +29,21 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
 
   const getStatusColor = (estado: string) => {
     const colors: { [key: string]: string } = {
-      PENDIENTE: "bg-amber-100 text-amber-900",
-      EN_PROCESO: "bg-blue-100 text-blue-800",
-      COMPLETADA: "bg-green-100 text-green-800",
+      PENDIENTE: 'bg-amber-100 text-amber-900',
+      EN_PROCESO: 'bg-blue-100 text-blue-800',
+      COMPLETADA: 'bg-green-100 text-green-800',
     };
-    return colors[estado] || "bg-gray-100 text-gray-800";
+    return colors[estado] || 'bg-gray-100 text-gray-800';
   };
 
   const formatFecha = (fecha: Date) => {
-    return new Date(fecha).toLocaleDateString("es-ES", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(fecha).toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -60,7 +60,7 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
                 <h3 className="text-lg font-semibold text-gray-900">
                   {interconsulta.paciente?.nombre}
                 </h3>
-                {interconsulta.prioridad === "ALTA" && (
+                {interconsulta.prioridad === 'ALTA' && (
                   <AlertTriangle className="h-5 w-5 text-red-500" />
                 )}
               </div>
@@ -139,14 +139,14 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
               )}
 
               {/* Only show buttons when status is EN_PROCESO */}
-              {interconsulta.estado === "EN_PROCESO" && (
+              {interconsulta.estado === 'EN_PROCESO' && (
                 <div className="mt-6 flex justify-end space-x-4">
                   <Button
                     variant="secondary"
                     onClick={(e: any) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log("Respuesta Física");
+                      console.log('Respuesta Física');
                     }}
                     className="flex items-center gap-2"
                   >

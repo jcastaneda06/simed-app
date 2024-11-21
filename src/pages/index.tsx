@@ -1,5 +1,5 @@
-import { useState, useEffect, FC, PropsWithChildren } from "react";
-import { useRouter } from "next/router";
+import { useState, useEffect, FC, PropsWithChildren } from 'react';
+import { useRouter } from 'next/router';
 import {
   ChevronDown,
   ChevronUp,
@@ -7,16 +7,16 @@ import {
   Clock,
   CheckCircle2,
   MessageSquare,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/select/Select";
-import { Usuario } from "@/types/Usuario";
-import { Interconsulta } from "@/types/Interconsulta";
+} from '@/components/select/Select';
+import { Usuario } from '@/types/Usuario';
+import { Interconsulta } from '@/types/Interconsulta';
 
 type CollapsibleSectionProps = {
   title: string;
@@ -68,29 +68,29 @@ const VerInterconsultas = () => {
   const [usuario, setUsuario] = useState<Usuario | undefined>(undefined);
   const [servicios, setServicios] = useState<any[]>([]);
   const [filtros, setFiltros] = useState({
-    estado: "",
-    prioridad: "",
-    servicio: "",
+    estado: '',
+    prioridad: '',
+    servicio: '',
   });
 
   const formatSignoVitalLabel = (key: string) => {
     const labels: { [key: string]: string } = {
-      presionArterial: "Presión Arterial",
-      frecuenciaCardiaca: "Frecuencia Cardíaca",
-      frecuenciaRespiratoria: "Frecuencia Respiratoria",
-      temperatura: "Temperatura",
-      saturacionOxigeno: "Saturación de Oxígeno",
+      presionArterial: 'Presión Arterial',
+      frecuenciaCardiaca: 'Frecuencia Cardíaca',
+      frecuenciaRespiratoria: 'Frecuencia Respiratoria',
+      temperatura: 'Temperatura',
+      saturacionOxigeno: 'Saturación de Oxígeno',
     };
     return labels[key] || key;
   };
 
   const fetchServicios = async () => {
     try {
-      const token = window.localStorage.getItem("token");
+      const token = window.localStorage.getItem('token');
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/servicios`;
 
-      console.log("Fetching services from:", apiUrl);
-      console.log("Using token:", token);
+      console.log('Fetching services from:', apiUrl);
+      console.log('Using token:', token);
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -101,12 +101,12 @@ const VerInterconsultas = () => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(
-          "Error al cargar servicios:",
+          'Error al cargar servicios:',
           response.status,
           response.statusText,
           errorText
         );
-        throw new Error("Error al cargar servicios");
+        throw new Error('Error al cargar servicios');
       }
 
       const data = await response.json();
@@ -114,16 +114,16 @@ const VerInterconsultas = () => {
         setServicios(data.data);
       }
     } catch (error: any) {
-      console.error("Error fetching servicios:", error);
-      setError(error.message || "Error al cargar servicios");
+      console.error('Error fetching servicios:', error);
+      setError(error.message || 'Error al cargar servicios');
     }
   };
 
   const fetchInterconsultas = async () => {
     try {
-      const token = window.localStorage.getItem("token");
+      const token = window.localStorage.getItem('token');
       if (!token) {
-        router.push("/login");
+        router.push('/login');
         return;
       }
 
@@ -168,28 +168,28 @@ const VerInterconsultas = () => {
       );
       setError(undefined);
     } catch (err: any) {
-      console.error("Error fetching interconsultas:", err);
-      setError(err.message || "Error al cargar las interconsultas");
+      console.error('Error fetching interconsultas:', err);
+      setError(err.message || 'Error al cargar las interconsultas');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const usuarioGuardado = localStorage.getItem("usuario");
+    const usuarioGuardado = localStorage.getItem('usuario');
     if (usuarioGuardado) {
       try {
         const usuarioData = JSON.parse(usuarioGuardado);
         setUsuario(usuarioData);
-        if (usuarioData.rol === "ADMIN") {
+        if (usuarioData.rol === 'ADMIN') {
           fetchServicios();
         }
       } catch (error) {
-        console.error("Error al procesar datos del usuario:", error);
-        setError("Error al cargar la información del usuario");
+        console.error('Error al procesar datos del usuario:', error);
+        setError('Error al cargar la información del usuario');
       }
     } else {
-      router.push("/login");
+      router.push('/login');
     }
   }, []);
 
@@ -209,7 +209,7 @@ const VerInterconsultas = () => {
   }) => {
     const [expanded, setExpanded] = useState(false);
     const [updating, setUpdating] = useState(false);
-    const [updateError, setUpdateError] = useState<string>("");
+    const [updateError, setUpdateError] = useState<string>('');
 
     const handleRespuestaVirtual = (e: any) => {
       e.preventDefault();
@@ -220,7 +220,7 @@ const VerInterconsultas = () => {
     const handleRespuestaFisica = (e: any) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log("Respuesta Física clickeada");
+      console.log('Respuesta Física clickeada');
     };
 
     if (
@@ -257,14 +257,14 @@ const VerInterconsultas = () => {
 
       try {
         setUpdating(true);
-        setUpdateError("");
-        const token = window.localStorage.getItem("token");
+        setUpdateError('');
+        const token = window.localStorage.getItem('token');
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/interconsultas/${interconsulta._id}/estado`,
           {
-            method: "PUT",
+            method: 'PUT',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ estado: newStatus }),
@@ -272,7 +272,7 @@ const VerInterconsultas = () => {
         );
 
         if (!response.ok) {
-          throw new Error("Error al actualizar el estado");
+          throw new Error('Error al actualizar el estado');
         }
 
         const data = await response.json();
@@ -280,8 +280,8 @@ const VerInterconsultas = () => {
           onStatusChange();
         }
       } catch (error) {
-        console.error("Error:", error);
-        setUpdateError("Error al actualizar el estado");
+        console.error('Error:', error);
+        setUpdateError('Error al actualizar el estado');
       } finally {
         setUpdating(false);
       }
@@ -289,20 +289,20 @@ const VerInterconsultas = () => {
 
     const getStatusColor = (estado: string) => {
       const colors: { [key: string]: string } = {
-        PENDIENTE: "bg-yellow-100 text-yellow-800 border-yellow-200",
-        EN_PROCESO: "bg-blue-100 text-blue-800 border-blue-200",
-        COMPLETADA: "bg-green-100 text-green-800 border-green-200",
+        PENDIENTE: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        EN_PROCESO: 'bg-blue-100 text-blue-800 border-blue-200',
+        COMPLETADA: 'bg-green-100 text-green-800 border-green-200',
       };
-      return colors[estado] || "bg-gray-100 text-gray-800 border-gray-200";
+      return colors[estado] || 'bg-gray-100 text-gray-800 border-gray-200';
     };
 
     const getPriorityIcon = (prioridad: string) => {
       switch (prioridad) {
-        case "ALTA":
+        case 'ALTA':
           return <AlertTriangle className="h-5 w-5 text-red-500" />;
-        case "MEDIA":
+        case 'MEDIA':
           return <Clock className="h-5 w-5 text-yellow-500" />;
-        case "BAJA":
+        case 'BAJA':
           return <CheckCircle2 className="h-5 w-5 text-green-500" />;
         default:
           return null;
@@ -311,16 +311,16 @@ const VerInterconsultas = () => {
 
     const formatFecha = (fecha: string) => {
       try {
-        return new Date(fecha).toLocaleDateString("es-ES", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
+        return new Date(fecha).toLocaleDateString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
         });
       } catch (error) {
-        return "Fecha inválida";
+        return 'Fecha inválida';
       }
     };
 
@@ -379,7 +379,7 @@ const VerInterconsultas = () => {
             <div className="mt-4 pt-4 border-t border-gray-100">
               <div className="grid gap-6">
                 {/* Buttons section - only show for EN_PROCESO status */}
-                {interconsulta.estado === "EN_PROCESO" && (
+                {interconsulta.estado === 'EN_PROCESO' && (
                   <div className="border-b border-gray-100 pb-4">
                     <div className="flex justify-end space-x-4">
                       <button
@@ -421,7 +421,7 @@ const VerInterconsultas = () => {
                     className={`
                       rounded-md border border-gray-300 px-3 py-2 text-gray-700 
                       focus:outline-none focus:ring-2 focus:ring-blue-500
-                      ${updating ? "opacity-50 cursor-not-allowed" : ""}
+                      ${updating ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
                   >
                     <option value="PENDIENTE">Pendiente</option>
@@ -557,7 +557,7 @@ const VerInterconsultas = () => {
             onValueChange={(value) =>
               setFiltros((prev) => ({
                 ...prev,
-                estado: value === "todos" ? "" : value,
+                estado: value === 'todos' ? '' : value,
               }))
             }
           >
@@ -566,7 +566,7 @@ const VerInterconsultas = () => {
             </SelectTrigger>
             <SelectContent
               className="bg-white border border-gray-200 shadow-lg"
-              style={{ backgroundColor: "white" }}
+              style={{ backgroundColor: 'white' }}
             >
               <SelectItem
                 value="todos"
@@ -606,7 +606,7 @@ const VerInterconsultas = () => {
             onValueChange={(value) =>
               setFiltros((prev) => ({
                 ...prev,
-                prioridad: value === "todos" ? "" : value,
+                prioridad: value === 'todos' ? '' : value,
               }))
             }
           >
@@ -615,7 +615,7 @@ const VerInterconsultas = () => {
             </SelectTrigger>
             <SelectContent
               className="bg-white border border-gray-200 shadow-lg"
-              style={{ backgroundColor: "white" }}
+              style={{ backgroundColor: 'white' }}
             >
               <SelectItem
                 value="todos"
@@ -644,13 +644,13 @@ const VerInterconsultas = () => {
             </SelectContent>
           </Select>
 
-          {usuario?.rol === "ADMIN" && (
+          {usuario?.rol === 'ADMIN' && (
             <Select
               value={filtros.servicio}
               onValueChange={(value) =>
                 setFiltros((prev) => ({
                   ...prev,
-                  servicio: value === "todos" ? "" : value,
+                  servicio: value === 'todos' ? '' : value,
                 }))
               }
             >
@@ -659,7 +659,7 @@ const VerInterconsultas = () => {
               </SelectTrigger>
               <SelectContent
                 className="bg-white border border-gray-200 shadow-lg"
-                style={{ backgroundColor: "white" }}
+                style={{ backgroundColor: 'white' }}
               >
                 <SelectItem
                   value="todos"

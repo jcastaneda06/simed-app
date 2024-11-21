@@ -1,9 +1,24 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import { ChevronDown, ChevronUp, AlertTriangle, Clock, CheckCircle2, MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { FC, useState } from "react";
+import { useRouter } from "next/router";
+import {
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  Clock,
+  CheckCircle2,
+  MessageSquare,
+} from "lucide-react";
+import { Button } from "@/components/button/Button";
 
-export default function InterconsultaCard({ interconsulta, onStatusChange }) {
+type InterconsultaProps = {
+  interconsulta: any;
+  onStatusChange: (id: string, estado: string) => void;
+};
+
+const InterconsultaCard: FC<InterconsultaProps> = ({
+  interconsulta,
+  onStatusChange,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const [updating, setUpdating] = useState(false);
   const router = useRouter();
@@ -12,30 +27,30 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
     router.push(`/interconsultas/${interconsulta._id}/respuesta-virtual`);
   };
 
-  const getStatusColor = (estado) => {
-    const colors = {
-      'PENDIENTE': 'bg-amber-100 text-amber-900',
-      'EN_PROCESO': 'bg-blue-100 text-blue-800',
-      'COMPLETADA': 'bg-green-100 text-green-800'
+  const getStatusColor = (estado: string) => {
+    const colors: { [key: string]: string } = {
+      PENDIENTE: "bg-amber-100 text-amber-900",
+      EN_PROCESO: "bg-blue-100 text-blue-800",
+      COMPLETADA: "bg-green-100 text-green-800",
     };
-    return colors[estado] || 'bg-gray-100 text-gray-800';
+    return colors[estado] || "bg-gray-100 text-gray-800";
   };
 
-  const formatFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  const formatFecha = (fecha: Date) => {
+    return new Date(fecha).toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   return (
     <div className="bg-white shadow-lg rounded-lg border border-gray-200">
       <div className="p-4">
-        <div 
+        <div
           className="cursor-pointer hover:bg-gray-50"
           onClick={() => setExpanded(!expanded)}
         >
@@ -45,7 +60,7 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
                 <h3 className="text-lg font-semibold text-gray-900">
                   {interconsulta.paciente?.nombre}
                 </h3>
-                {interconsulta.prioridad === 'ALTA' && (
+                {interconsulta.prioridad === "ALTA" && (
                   <AlertTriangle className="h-5 w-5 text-red-500" />
                 )}
               </div>
@@ -61,16 +76,21 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
             </div>
 
             <div className="flex flex-col items-end space-y-2">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(interconsulta.estado)}`}>
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                  interconsulta.estado
+                )}`}
+              >
                 {interconsulta.estado}
               </span>
               <span className="text-sm text-gray-500">
                 {formatFecha(interconsulta.fechaCreacion)}
               </span>
-              {expanded ? 
-                <ChevronUp className="h-5 w-5 text-gray-400" /> : 
+              {expanded ? (
+                <ChevronUp className="h-5 w-5 text-gray-400" />
+              ) : (
                 <ChevronDown className="h-5 w-5 text-gray-400" />
-              }
+              )}
             </div>
           </div>
         </div>
@@ -79,11 +99,15 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-gray-700">Estado de la Interconsulta</h4>
+                <h4 className="text-sm font-medium text-gray-700">
+                  Estado de la Interconsulta
+                </h4>
                 <div className="mt-2 p-3 bg-gray-50 rounded-md">
                   <select
                     value={interconsulta.estado}
-                    onChange={(e) => onStatusChange(interconsulta._id, e.target.value)}
+                    onChange={(e) =>
+                      onStatusChange(interconsulta._id, e.target.value)
+                    }
                     disabled={updating}
                     className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
@@ -95,7 +119,9 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-gray-700">Objetivo de la Consulta</h4>
+                <h4 className="text-sm font-medium text-gray-700">
+                  Objetivo de la Consulta
+                </h4>
                 <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
                   {interconsulta.objetivoConsulta}
                 </p>
@@ -103,7 +129,9 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
 
               {interconsulta.estadoClinico && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700">Estado Clínico</h4>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Estado Clínico
+                  </h4>
                   <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
                     {interconsulta.estadoClinico}
                   </p>
@@ -111,14 +139,14 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
               )}
 
               {/* Only show buttons when status is EN_PROCESO */}
-              {interconsulta.estado === 'EN_PROCESO' && (
+              {interconsulta.estado === "EN_PROCESO" && (
                 <div className="mt-6 flex justify-end space-x-4">
                   <Button
                     variant="secondary"
-                    onClick={(e) => {
+                    onClick={(e: any) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Respuesta Física');
+                      console.log("Respuesta Física");
                     }}
                     className="flex items-center gap-2"
                   >
@@ -127,7 +155,7 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
                   </Button>
                   <Button
                     variant="default"
-                    onClick={(e) => {
+                    onClick={(e: any) => {
                       e.preventDefault();
                       e.stopPropagation();
                       handleRespuestaVirtual();
@@ -145,4 +173,4 @@ export default function InterconsultaCard({ interconsulta, onStatusChange }) {
       </div>
     </div>
   );
-}
+};

@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { User } from 'lucide-react';
+import React, { useState, useEffect, FC, PropsWithChildren } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { User } from "lucide-react";
 
-const Layout = ({ children }) => {
+const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const [usuario, setUsuario] = useState(null);
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    const token = window.localStorage.getItem('token');
-    const usuarioGuardado = window.localStorage.getItem('usuario');
+    const token = window.localStorage.getItem("token");
+    const usuarioGuardado = window.localStorage.getItem("usuario");
     if (usuarioGuardado) {
       setUsuario(JSON.parse(usuarioGuardado));
     }
-    if (!token && router.pathname !== '/login') {
-      router.push('/login');
+    if (!token && router.pathname !== "/login") {
+      router.push("/login");
     }
   }, [router]);
 
@@ -27,14 +27,14 @@ const Layout = ({ children }) => {
   }
 
   // Verificar token una vez que estamos en el cliente
-  const token = window.localStorage.getItem('token');
-  if (!token && router.pathname !== '/login') {
+  const token = window.localStorage.getItem("token");
+  if (!token && router.pathname !== "/login") {
     return null;
   }
 
   const navigationLinks = [
     { href: "/", label: "Ver Interconsultas" },
-    { href: "/crear-interconsulta", label: "Crear Interconsulta" }
+    { href: "/crear-interconsulta", label: "Crear Interconsulta" },
   ];
 
   return (
@@ -52,14 +52,15 @@ const Layout = ({ children }) => {
               </div>
               {/* Enlaces de navegación desktop */}
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                {navigationLinks.map(link => (
+                {navigationLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium
-                      ${router.pathname === link.href
-                        ? "border-blue-500 text-gray-900"
-                        : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                      ${
+                        router.pathname === link.href
+                          ? "border-blue-500 text-gray-900"
+                          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                       }`}
                   >
                     {link.label}
@@ -78,16 +79,16 @@ const Layout = ({ children }) => {
                       {usuario.nombre || usuario.email}
                     </span>
                     <span className="ml-2 text-gray-500 text-xs">
-                      {usuario.rol || 'Usuario'}
+                      {usuario.rol || "Usuario"}
                     </span>
                   </div>
                 </div>
               )}
               <button
                 onClick={() => {
-                  window.localStorage.removeItem('token');
-                  window.localStorage.removeItem('usuario');
-                  router.push('/login');
+                  window.localStorage.removeItem("token");
+                  window.localStorage.removeItem("usuario");
+                  router.push("/login");
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
               >
@@ -99,7 +100,7 @@ const Layout = ({ children }) => {
           {/* Menú móvil */}
           <div className="sm:hidden">
             <div className="pt-2 pb-3 space-y-1">
-              {navigationLinks.map(link => (
+              {navigationLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

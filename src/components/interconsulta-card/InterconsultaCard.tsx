@@ -1,89 +1,206 @@
 import { FC, useState } from 'react'
-import { useRouter } from 'next/router'
+import { Interconsulta } from '@/types/Interconsulta'
+import Router from 'next/router'
 import {
-  ChevronDown,
-  ChevronUp,
   AlertTriangle,
   Clock,
   CheckCircle2,
+  ChevronUp,
+  ChevronDown,
   MessageSquare,
 } from 'lucide-react'
-import { Button } from '@/components/button/Button'
 
-type InterconsultaProps = {
-  interconsulta: any
-  onStatusChange: (id: string, estado: string) => void
+type InterconsultaCardProps = {
+  interconsulta: Interconsulta
+  interconsultasEnviadas: Interconsulta[]
+  interconsultasRecibidas: Interconsulta[]
+  onStatusChange: () => void
+  loading: boolean
+  error: string
 }
 
-const InterconsultaCard: FC<InterconsultaProps> = ({
+const InterconsultaCard: FC<InterconsultaCardProps> = ({
   interconsulta,
+  interconsultasEnviadas,
+  interconsultasRecibidas,
   onStatusChange,
+  loading,
+  error,
 }) => {
   const [expanded, setExpanded] = useState(false)
   const [updating, setUpdating] = useState(false)
-  const router = useRouter()
+  const [updateError, setUpdateError] = useState<string>('')
+  const router = Router
 
-  const handleRespuestaVirtual = () => {
+  const formatSignoVitalLabel = (key: string) => {
+    const labels: { [key: string]: string } = {
+      presionArterial: 'Presión Arterial',
+      frecuenciaCardiaca: 'Frecuencia Cardíaca',
+      frecuenciaRespiratoria: 'Frecuencia Respiratoria',
+      temperatura: 'Temperatura',
+      saturacionOxigeno: 'Saturación de Oxígeno',
+    }
+    return labels[key] || key
+  }
+
+  const handleRespuestaVirtual = (e: any) => {
+    e.preventDefault()
+    e.stopPropagation()
     router.push(`/interconsultas/${interconsulta._id}/respuesta-virtual`)
+  }
+
+  const handleRespuestaFisica = (e: any) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Respuesta Física clickeada')
+  }
+
+  if (
+    loading &&
+    interconsultasEnviadas.length === 0 &&
+    interconsultasRecibidas.length === 0
+  ) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-4">
+          <div className="text-center py-6">Cargando interconsultas...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-4">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+            <div className="flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              <span>{error}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (updating) return
+
+    try {
+      setUpdating(true)
+      setUpdateError('')
+      const token = window.localStorage.getItem('token')
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/interconsultas/${interconsulta._id}/estado`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ estado: newStatus }),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el estado')
+      }
+
+      const data = await response.json()
+      if (data.exito) {
+        onStatusChange()
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      setUpdateError('Error al actualizar el estado')
+    } finally {
+      setUpdating(false)
+    }
   }
 
   const getStatusColor = (estado: string) => {
     const colors: { [key: string]: string } = {
-      PENDIENTE: 'bg-amber-100 text-amber-900',
-      EN_PROCESO: 'bg-blue-100 text-blue-800',
-      COMPLETADA: 'bg-green-100 text-green-800',
+      PENDIENTE: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      EN_PROCESO: 'bg-blue-100 text-blue-800 border-blue-200',
+      COMPLETADA: 'bg-green-100 text-green-800 border-green-200',
     }
-    return colors[estado] || 'bg-gray-100 text-gray-800'
+    return colors[estado] || 'bg-gray-100 text-gray-800 border-gray-200'
   }
 
-  const formatFecha = (fecha: Date) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+  const getPriorityIcon = (prioridad: string) => {
+    switch (prioridad) {
+      case 'ALTA':
+        return <AlertTriangle className="h-5 w-5 text-red-500" />
+      case 'MEDIA':
+        return <Clock className="h-5 w-5 text-yellow-500" />
+      case 'BAJA':
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />
+      default:
+        return null
+    }
+  }
+
+  const formatFecha = (fecha: string) => {
+    try {
+      return new Date(fecha).toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    } catch (error) {
+      return 'Fecha inválida'
+    }
+  }
+
+  if (
+    !interconsulta ||
+    !interconsulta.paciente ||
+    !interconsulta.servicioDestino ||
+    !interconsulta.servicioSolicitante
+  ) {
+    return null
   }
 
   return (
-    <div className="bg-white shadow-lg rounded-lg border border-gray-200">
+    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
       <div className="p-4">
         <div
-          className="cursor-pointer hover:bg-gray-50"
+          className="cursor-pointer select-none"
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex justify-between items-start">
-            <div className="space-y-1">
+            <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-black font-semibold">
                   {interconsulta.paciente?.nombre}
-                </h3>
-                {interconsulta.prioridad === 'ALTA' && (
-                  <AlertTriangle className="h-5 w-5 text-red-500" />
-                )}
+                </h2>
+                {getPriorityIcon(interconsulta.prioridad)}
               </div>
-              <p className="text-sm text-gray-600">
-                HC: {interconsulta.numeroHistoria}
-              </p>
-              <p className="text-sm text-gray-600">
-                De: {interconsulta.servicioSolicitante?.nombre}
-              </p>
-              <p className="text-sm text-gray-600">
-                Para: {interconsulta.servicioDestino?.nombre}
-              </p>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-800">
+                  HC: {interconsulta.paciente?.numeroHistoria}
+                </p>
+                <p className="text-sm text-gray-800">
+                  De: {interconsulta?.servicioSolicitante.nombre}
+                </p>
+                <p className="text-sm text-gray-800">
+                  Para: {interconsulta?.servicioDestino.nombre}
+                </p>
+              </div>
             </div>
-
-            <div className="flex flex-col items-end space-y-2">
+            <div className="flex flex-col items-end gap-2">
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                className={`px-3 py-1 rounded-full text-sm border ${getStatusColor(
                   interconsulta.estado
                 )}`}
               >
                 {interconsulta.estado}
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-xs text-gray-500">
                 {formatFecha(interconsulta.fechaCreacion)}
               </span>
               {expanded ? (
@@ -96,75 +213,139 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
         </div>
 
         {expanded && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">
-                  Estado de la Interconsulta
-                </h4>
-                <div className="mt-2 p-3 bg-gray-50 rounded-md">
-                  <select
-                    value={interconsulta.estado}
-                    onChange={(e) =>
-                      onStatusChange(interconsulta._id, e.target.value)
-                    }
-                    disabled={updating}
-                    className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="PENDIENTE">Pendiente</option>
-                    <option value="EN_PROCESO">En Proceso</option>
-                    <option value="COMPLETADA">Completada</option>
-                  </select>
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="grid gap-6">
+              {/* Buttons section - only show for EN_PROCESO status */}
+              {interconsulta.estado === 'EN_PROCESO' && (
+                <div className="border-b border-gray-100 pb-4">
+                  <div className="flex justify-end space-x-4">
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                      onClick={handleRespuestaFisica}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      Respuesta Física
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                      onClick={handleRespuestaVirtual}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Respuesta Virtual
+                    </button>
+                  </div>
                 </div>
+              )}
+
+              <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    Estado de la Interconsulta
+                  </h3>
+                  <p className="text-sm text-gray-800">
+                    Estado actual: {interconsulta.estado}
+                  </p>
+                  {updateError && (
+                    <p className="text-sm text-red-600">{updateError}</p>
+                  )}
+                </div>
+                <select
+                  value={interconsulta.estado}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  disabled={updating}
+                  className={`
+                      rounded-md border border-gray-300 px-3 py-2 text-gray-700 
+                      focus:outline-none focus:ring-2 focus:ring-blue-500
+                      ${updating ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                >
+                  <option value="PENDIENTE">Pendiente</option>
+                  <option value="EN_PROCESO">En Proceso</option>
+                  <option value="COMPLETADA">Completada</option>
+                </select>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-gray-700">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">
                   Objetivo de la Consulta
-                </h4>
-                <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
+                </h3>
+                <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded">
                   {interconsulta.objetivoConsulta}
                 </p>
               </div>
 
               {interconsulta.estadoClinico && (
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700">
-                    Estado Clínico
-                  </h4>
-                  <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
-                    {interconsulta.estadoClinico}
-                  </p>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                      Estado Clínico
+                    </h3>
+                    <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded">
+                      {interconsulta.estadoClinico.subjetivo}
+                    </p>
+                  </div>
+
+                  {interconsulta.estadoClinico.signosVitales && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                        Signos Vitales
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {Object.entries(
+                          interconsulta.estadoClinico.signosVitales
+                        ).map(([key, value]) => (
+                          <div key={key} className="bg-gray-50 p-3 rounded">
+                            <p className="text-xs text-gray-700 mb-1">
+                              {formatSignoVitalLabel(key)}
+                            </p>
+                            <p className="text-sm font-medium text-black">
+                              {value}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Only show buttons when status is EN_PROCESO */}
-              {interconsulta.estado === 'EN_PROCESO' && (
-                <div className="mt-6 flex justify-end space-x-4">
-                  <Button
-                    variant="secondary"
-                    onClick={(e: any) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      console.log('Respuesta Física')
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Respuesta Física
-                  </Button>
-                  <Button
-                    variant="default"
-                    onClick={(e: any) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleRespuestaVirtual()
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Respuesta Virtual
-                  </Button>
+              {(interconsulta.laboratorios || interconsulta.imagenologia) && (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {interconsulta.laboratorios && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                        Laboratorios
+                      </h3>
+                      <div className="bg-gray-50 p-3 rounded space-y-2">
+                        <p className="text-sm text-black">
+                          {interconsulta.laboratorios.resultados}
+                        </p>
+                        {interconsulta.laboratorios.observaciones && (
+                          <p className="text-sm text-black">
+                            Nota: {interconsulta.laboratorios.observaciones}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {interconsulta.imagenologia && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                        Imagenología
+                      </h3>
+                      <div className="bg-gray-50 p-3 rounded space-y-2">
+                        <p className="text-sm font-medium text-black">
+                          {interconsulta.imagenologia.tipo}
+                        </p>
+                        <p className="text-sm text-black">
+                          {interconsulta.imagenologia.hallazgosRelevantes}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -174,3 +355,5 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
     </div>
   )
 }
+
+export default InterconsultaCard

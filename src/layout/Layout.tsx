@@ -2,35 +2,31 @@ import React, { useState, useEffect, FC, PropsWithChildren } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { User } from 'lucide-react'
+import { Usuario } from '@/types/Usuario'
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter()
   const [isClient, setIsClient] = useState(false)
   const [usuario, setUsuario] = useState<Usuario | null>(null)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     setIsClient(true)
-    const token = window.localStorage.getItem('token')
     const usuarioGuardado = window.localStorage.getItem('usuario')
     if (usuarioGuardado) {
       setUsuario(JSON.parse(usuarioGuardado))
     }
-    if (!token && router.pathname !== '/login') {
-      router.push('/login')
-    }
-  }, [router])
+  }, [])
 
   // Si aún no estamos en el cliente, no renderizar nada
   if (!isClient) {
     return null
   }
 
-  // Verificar token una vez que estamos en el cliente
-  const token = window.localStorage.getItem('token')
-  if (!token && router.pathname !== '/login') {
-    return null
-  }
+  // // Verificar token una vez que estamos en el cliente
+  // const token = window.localStorage.getItem('token')
+  // if (!token && router.pathname !== '/login') {
+  //   return null
+  // }
 
   const navigationLinks = [
     { href: '/', label: 'Ver Interconsultas' },

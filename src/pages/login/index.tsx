@@ -10,7 +10,8 @@ export default function Login() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+  console.log('API_URL:', API_URL)
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()

@@ -9,6 +9,7 @@ import {
   MessageSquare,
 } from 'lucide-react'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 const CrearInterconsulta = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -95,16 +96,14 @@ const CrearInterconsulta = () => {
     setSuccess(false)
 
     try {
-      const response = await fetch(
-        'http://localhost:3000/api/interconsultas/crear',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
-        }
-      )
+      const response = await fetch(`${API_URL}/api/interconsultas/crear`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(formData),
+      })
 
       if (!response.ok) {
         throw new Error('Error al crear la interconsulta')

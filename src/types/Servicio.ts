@@ -1,4 +1,4 @@
-export type Servicios = {
+export type Servicio = {
   _id: string
   nombre: string
   descripcion: string

@@ -1,7 +1,5 @@
-import { headers } from 'next/headers'
-
 // lib/apiClient.js
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
 export const apiClient = {
   async fetch(endpoint: string, options: any = {}) {

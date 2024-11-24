@@ -1,3 +1,5 @@
+import { Servicio } from './Servicio'
+
 export type Interconsulta = {
   _id: string
   paciente: {
@@ -5,8 +7,8 @@ export type Interconsulta = {
     prioridad: string
     numeroHistoria: string
   }
-  servicioSolicitante: string
-  servicioDestino: string
+  servicioSolicitante: Servicio
+  servicioDestino: Servicio
   objetivoConsulta: string
   historiaClinica: string
   estadoClinico: {

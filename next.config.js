@@ -7,8 +7,8 @@ const nextConfig = {
         destination: 'http://localhost:3000/api/:path*',
         basePath: false,
       },
-    ];
+    ]
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

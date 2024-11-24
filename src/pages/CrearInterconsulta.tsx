@@ -1,5 +1,5 @@
-import Layout from '@/layout/Layout';
-import { useState } from 'react';
+import Layout from '@/layout/Layout'
+import { useState } from 'react'
 import {
   ChevronDown,
   ChevronUp,
@@ -7,17 +7,17 @@ import {
   Clock,
   CheckCircle2,
   MessageSquare,
-} from 'lucide-react';
+} from 'lucide-react'
 
 const CrearInterconsulta = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(false)
 
   const servicios = [
     { id: '672e05bad3ce20d6407a5143', nombre: 'Cirugía' },
     { id: '672e099e636c9f5552583436', nombre: 'Medicina Interna' },
-  ];
+  ]
 
   const [formData, setFormData] = useState<{ [key: string]: any }>({
     paciente: {
@@ -56,10 +56,10 @@ const CrearInterconsulta = () => {
       hospitalarios: '',
     },
     prioridad: 'ALTA',
-  });
+  })
 
   const handleChange = (e: any, section: any, subsection: any = '') => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
 
     if (section && subsection) {
       setFormData((prev) => ({
@@ -71,7 +71,7 @@ const CrearInterconsulta = () => {
             [name]: value,
           },
         },
-      }));
+      }))
     } else if (section) {
       setFormData((prev) => ({
         ...prev,
@@ -79,20 +79,20 @@ const CrearInterconsulta = () => {
           ...prev[section],
           [name]: value,
         },
-      }));
+      }))
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }));
+      }))
     }
-  };
+  }
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    setSuccess(false)
 
     try {
       const response = await fetch(
@@ -104,13 +104,13 @@ const CrearInterconsulta = () => {
           },
           body: JSON.stringify(formData),
         }
-      );
+      )
 
       if (!response.ok) {
-        throw new Error('Error al crear la interconsulta');
+        throw new Error('Error al crear la interconsulta')
       }
 
-      setSuccess(true);
+      setSuccess(true)
       setFormData({
         paciente: { nombre: '', edad: '', numeroHistoria: '' },
         servicioSolicitante: '',
@@ -134,13 +134,13 @@ const CrearInterconsulta = () => {
         alergias: '',
         medicamentos: { preHospitalarios: '', hospitalarios: '' },
         prioridad: 'ALTA',
-      });
+      })
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -619,7 +619,7 @@ const CrearInterconsulta = () => {
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default CrearInterconsulta;
+export default CrearInterconsulta

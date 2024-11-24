@@ -1,5 +1,5 @@
-import { useState, useEffect, FC, PropsWithChildren } from 'react';
-import { useRouter } from 'next/router';
+import { useState, useEffect, FC, PropsWithChildren } from 'react'
+import { useRouter } from 'next/router'
 import {
   ChevronDown,
   ChevronUp,
@@ -7,28 +7,28 @@ import {
   Clock,
   CheckCircle2,
   MessageSquare,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/select/Select';
-import { Usuario } from '@/types/Usuario';
-import { Interconsulta } from '@/types/Interconsulta';
+} from '@/components/select/Select'
+import { Usuario } from '@/types/Usuario'
+import { Interconsulta } from '@/types/Interconsulta'
 
 type CollapsibleSectionProps = {
-  title: string;
-  count: number;
-};
+  title: string
+  count: number
+}
 
 const CollapsibleSection: FC<PropsWithChildren<CollapsibleSectionProps>> = ({
   title,
   count,
   children,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(true)
 
   return (
     <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-100">
@@ -52,26 +52,26 @@ const CollapsibleSection: FC<PropsWithChildren<CollapsibleSectionProps>> = ({
         <div className="p-4 border-t border-gray-100">{children}</div>
       )}
     </div>
-  );
-};
+  )
+}
 
 const VerInterconsultas = () => {
-  const router = useRouter();
+  const router = useRouter()
   const [interconsultasEnviadas, setInterconsultasEnviadas] = useState<
     Interconsulta[]
-  >([]);
+  >([])
   const [interconsultasRecibidas, setInterconsultasRecibidas] = useState<
     Interconsulta[]
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | undefined>(undefined);
-  const [usuario, setUsuario] = useState<Usuario | undefined>(undefined);
-  const [servicios, setServicios] = useState<any[]>([]);
+  >([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | undefined>(undefined)
+  const [usuario, setUsuario] = useState<Usuario | undefined>(undefined)
+  const [servicios, setServicios] = useState<any[]>([])
   const [filtros, setFiltros] = useState({
     estado: '',
     prioridad: '',
     servicio: '',
-  });
+  })
 
   const formatSignoVitalLabel = (key: string) => {
     const labels: { [key: string]: string } = {
@@ -80,59 +80,59 @@ const VerInterconsultas = () => {
       frecuenciaRespiratoria: 'Frecuencia Respiratoria',
       temperatura: 'Temperatura',
       saturacionOxigeno: 'Saturación de Oxígeno',
-    };
-    return labels[key] || key;
-  };
+    }
+    return labels[key] || key
+  }
 
   const fetchServicios = async () => {
     try {
-      const token = window.localStorage.getItem('token');
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/servicios`;
+      const token = window.localStorage.getItem('token')
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/servicios`
 
-      console.log('Fetching services from:', apiUrl);
-      console.log('Using token:', token);
+      console.log('Fetching services from:', apiUrl)
+      console.log('Using token:', token)
 
       const response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
       if (!response.ok) {
-        const errorText = await response.text();
+        const errorText = await response.text()
         console.error(
           'Error al cargar servicios:',
           response.status,
           response.statusText,
           errorText
-        );
-        throw new Error('Error al cargar servicios');
+        )
+        throw new Error('Error al cargar servicios')
       }
 
-      const data = await response.json();
+      const data = await response.json()
       if (data.exito) {
-        setServicios(data.data);
+        setServicios(data.data)
       }
     } catch (error: any) {
-      console.error('Error fetching servicios:', error);
-      setError(error.message || 'Error al cargar servicios');
+      console.error('Error fetching servicios:', error)
+      setError(error.message || 'Error al cargar servicios')
     }
-  };
+  }
 
   const fetchInterconsultas = async () => {
     try {
-      const token = window.localStorage.getItem('token');
+      const token = window.localStorage.getItem('token')
       if (!token) {
-        router.push('/login');
-        return;
+        router.push('/login')
+        return
       }
 
-      setLoading(true);
+      setLoading(true)
 
-      let query = ``;
-      if (filtros.estado) query += `estado=${filtros.estado}`;
-      if (filtros.prioridad) query += `prioaridad=${filtros.estado}`;
-      if (filtros.servicio) query += `servicio=${filtros.servicio}`;
+      let query = ``
+      if (filtros.estado) query += `estado=${filtros.estado}`
+      if (filtros.prioridad) query += `prioaridad=${filtros.estado}`
+      if (filtros.servicio) query += `servicio=${filtros.servicio}`
 
       const responseEnviadas = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/interconsultas/filtrar?${query}&tipoFiltro=enviadas&idServicio=${usuario?.servicio}`,
@@ -141,7 +141,7 @@ const VerInterconsultas = () => {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
+      )
 
       // Fetch recibidas - solo las del servicio del usuario como destino
       const responseRecibidas = await fetch(
@@ -151,77 +151,77 @@ const VerInterconsultas = () => {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
+      )
 
       // if (!responseEnviadas.ok || !responseRecibidas.ok) {
       //   throw new Error('Error en la respuesta del servidor');
       // }
 
-      const dataEnviadas = await responseEnviadas.json();
-      const dataRecibidas = await responseRecibidas.json();
+      const dataEnviadas = await responseEnviadas.json()
+      const dataRecibidas = await responseRecibidas.json()
 
       setInterconsultasEnviadas(
         Array.isArray(dataEnviadas.data) ? dataEnviadas.data : []
-      );
+      )
       setInterconsultasRecibidas(
         Array.isArray(dataRecibidas.data) ? dataRecibidas.data : []
-      );
-      setError(undefined);
+      )
+      setError(undefined)
     } catch (err: any) {
-      console.error('Error fetching interconsultas:', err);
-      setError(err.message || 'Error al cargar las interconsultas');
+      console.error('Error fetching interconsultas:', err)
+      setError(err.message || 'Error al cargar las interconsultas')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    const usuarioGuardado = localStorage.getItem('usuario');
+    const usuarioGuardado = localStorage.getItem('usuario')
     if (usuarioGuardado) {
       try {
-        const usuarioData = JSON.parse(usuarioGuardado);
-        setUsuario(usuarioData);
+        const usuarioData = JSON.parse(usuarioGuardado)
+        setUsuario(usuarioData)
         if (usuarioData.rol === 'ADMIN') {
-          fetchServicios();
+          fetchServicios()
         }
       } catch (error) {
-        console.error('Error al procesar datos del usuario:', error);
-        setError('Error al cargar la información del usuario');
+        console.error('Error al procesar datos del usuario:', error)
+        setError('Error al cargar la información del usuario')
       }
     } else {
-      router.push('/login');
+      router.push('/login')
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     if (usuario) {
-      fetchInterconsultas();
+      fetchInterconsultas()
     }
-  }, [filtros, usuario]);
+  }, [filtros, usuario])
 
   type InterconsultaCardProps = {
-    interconsulta: Interconsulta;
-    onStatusChange: () => void;
-  };
+    interconsulta: Interconsulta
+    onStatusChange: () => void
+  }
   const InterconsultaCard: FC<InterconsultaCardProps> = ({
     interconsulta,
     onStatusChange,
   }) => {
-    const [expanded, setExpanded] = useState(false);
-    const [updating, setUpdating] = useState(false);
-    const [updateError, setUpdateError] = useState<string>('');
+    const [expanded, setExpanded] = useState(false)
+    const [updating, setUpdating] = useState(false)
+    const [updateError, setUpdateError] = useState<string>('')
 
     const handleRespuestaVirtual = (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      router.push(`/interconsultas/${interconsulta._id}/respuesta-virtual`);
-    };
+      e.preventDefault()
+      e.stopPropagation()
+      router.push(`/interconsultas/${interconsulta._id}/respuesta-virtual`)
+    }
 
     const handleRespuestaFisica = (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('Respuesta Física clickeada');
-    };
+      e.preventDefault()
+      e.stopPropagation()
+      console.log('Respuesta Física clickeada')
+    }
 
     if (
       loading &&
@@ -234,7 +234,7 @@ const VerInterconsultas = () => {
             <div className="text-center py-6">Cargando interconsultas...</div>
           </div>
         </div>
-      );
+      )
     }
 
     if (error) {
@@ -249,16 +249,16 @@ const VerInterconsultas = () => {
             </div>
           </div>
         </div>
-      );
+      )
     }
 
     const handleStatusChange = async (newStatus: string) => {
-      if (updating) return;
+      if (updating) return
 
       try {
-        setUpdating(true);
-        setUpdateError('');
-        const token = window.localStorage.getItem('token');
+        setUpdating(true)
+        setUpdateError('')
+        const token = window.localStorage.getItem('token')
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/interconsultas/${interconsulta._id}/estado`,
           {
@@ -269,45 +269,45 @@ const VerInterconsultas = () => {
             },
             body: JSON.stringify({ estado: newStatus }),
           }
-        );
+        )
 
         if (!response.ok) {
-          throw new Error('Error al actualizar el estado');
+          throw new Error('Error al actualizar el estado')
         }
 
-        const data = await response.json();
+        const data = await response.json()
         if (data.exito) {
-          onStatusChange();
+          onStatusChange()
         }
       } catch (error) {
-        console.error('Error:', error);
-        setUpdateError('Error al actualizar el estado');
+        console.error('Error:', error)
+        setUpdateError('Error al actualizar el estado')
       } finally {
-        setUpdating(false);
+        setUpdating(false)
       }
-    };
+    }
 
     const getStatusColor = (estado: string) => {
       const colors: { [key: string]: string } = {
         PENDIENTE: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         EN_PROCESO: 'bg-blue-100 text-blue-800 border-blue-200',
         COMPLETADA: 'bg-green-100 text-green-800 border-green-200',
-      };
-      return colors[estado] || 'bg-gray-100 text-gray-800 border-gray-200';
-    };
+      }
+      return colors[estado] || 'bg-gray-100 text-gray-800 border-gray-200'
+    }
 
     const getPriorityIcon = (prioridad: string) => {
       switch (prioridad) {
         case 'ALTA':
-          return <AlertTriangle className="h-5 w-5 text-red-500" />;
+          return <AlertTriangle className="h-5 w-5 text-red-500" />
         case 'MEDIA':
-          return <Clock className="h-5 w-5 text-yellow-500" />;
+          return <Clock className="h-5 w-5 text-yellow-500" />
         case 'BAJA':
-          return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+          return <CheckCircle2 className="h-5 w-5 text-green-500" />
         default:
-          return null;
+          return null
       }
-    };
+    }
 
     const formatFecha = (fecha: string) => {
       try {
@@ -318,14 +318,14 @@ const VerInterconsultas = () => {
           day: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
-        });
+        })
       } catch (error) {
-        return 'Fecha inválida';
+        return 'Fecha inválida'
       }
-    };
+    }
 
     if (!interconsulta || !interconsulta.paciente) {
-      return null;
+      return null
     }
 
     return (
@@ -516,8 +516,8 @@ const VerInterconsultas = () => {
           )}
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   if (
     loading &&
@@ -530,7 +530,7 @@ const VerInterconsultas = () => {
           <div className="text-center py-6">Cargando interconsultas...</div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -545,7 +545,7 @@ const VerInterconsultas = () => {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -730,7 +730,7 @@ const VerInterconsultas = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default VerInterconsultas;
+export default VerInterconsultas

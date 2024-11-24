@@ -1,4 +1,4 @@
 export type Filtros = {
-  tipo: 'enviadas' | 'recibidas';
-  estado?: string;
-};
+  tipo: 'enviadas' | 'recibidas'
+  estado?: string
+}

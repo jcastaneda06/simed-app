@@ -1,59 +1,57 @@
-import { useState, useEffect, FC } from 'react';
-import { useRouter } from 'next/router';
-import { AlertTriangle } from 'lucide-react';
+import { useState, useEffect, FC } from 'react'
+import { useRouter } from 'next/router'
+import { AlertTriangle } from 'lucide-react'
 
 // Example structure of interconsulta. Adjust as needed to match your API.
 interface Interconsulta {
   paciente?: {
-    nombre?: string;
-    numeroHistoria?: string;
-  };
+    nombre?: string
+    numeroHistoria?: string
+  }
   servicioSolicitante?: {
-    nombre?: string;
-  };
+    nombre?: string
+  }
   servicioDestino?: {
-    nombre?: string;
-  };
-  prioridad?: string;
-  fechaCreacion?: string; // Use `Date` if you're handling it as a Date object.
-  objetivoConsulta?: string;
+    nombre?: string
+  }
+  prioridad?: string
+  fechaCreacion?: string // Use `Date` if you're handling it as a Date object.
+  objetivoConsulta?: string
   estadoClinico?: {
     signosVitales?: {
-      presionArterial?: string;
-      frecuenciaCardiaca?: string;
-      frecuenciaRespiratoria?: string;
-      temperatura?: string;
-      saturacionOxigeno?: string;
-    };
-    subjetivo?: string;
-  };
+      presionArterial?: string
+      frecuenciaCardiaca?: string
+      frecuenciaRespiratoria?: string
+      temperatura?: string
+      saturacionOxigeno?: string
+    }
+    subjetivo?: string
+  }
 }
 
 const RespuestaVirtual: FC = () => {
-  const router = useRouter();
-  const { id } = router.query;
-  const [interconsulta, setInterconsulta] = useState<Interconsulta | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [respuesta, setRespuesta] = useState('');
+  const router = useRouter()
+  const { id } = router.query
+  const [interconsulta, setInterconsulta] = useState<Interconsulta | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [respuesta, setRespuesta] = useState('')
 
   useEffect(() => {
     if (id) {
-      fetchInterconsulta();
+      fetchInterconsulta()
     }
-  }, [id]);
+  }, [id])
 
   const fetchInterconsulta = async () => {
     try {
-      const token = window.localStorage.getItem('token');
+      const token = window.localStorage.getItem('token')
       if (!token) {
-        router.push('/login');
-        return;
+        router.push('/login')
+        return
       }
 
-      setLoading(true);
+      setLoading(true)
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/interconsultas/${id}`,
@@ -62,30 +60,30 @@ const RespuestaVirtual: FC = () => {
             Authorization: `Bearer ${token}`,
           },
         }
-      );
+      )
 
       if (response.status === 401) {
-        router.push('/login');
-        return;
+        router.push('/login')
+        return
       }
 
       if (!response.ok) {
-        throw new Error('Error en la respuesta del servidor');
+        throw new Error('Error en la respuesta del servidor')
       }
 
-      const data = await response.json();
-      setInterconsulta(data.data);
-      setError(null);
+      const data = await response.json()
+      setInterconsulta(data.data)
+      setError(null)
     } catch (err: any) {
-      console.error('Error fetching interconsulta:', err);
-      setError(err.message || 'Error al cargar la interconsulta');
+      console.error('Error fetching interconsulta:', err)
+      setError(err.message || 'Error al cargar la interconsulta')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const formatFecha = (fecha: string | undefined) => {
-    if (!fecha) return 'Fecha inválida';
+    if (!fecha) return 'Fecha inválida'
     try {
       return new Date(fecha).toLocaleDateString('es-ES', {
         weekday: 'long',
@@ -94,11 +92,11 @@ const RespuestaVirtual: FC = () => {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-      });
+      })
     } catch (error) {
-      return 'Fecha inválida';
+      return 'Fecha inválida'
     }
-  };
+  }
 
   if (loading || !interconsulta)
     return (
@@ -107,7 +105,7 @@ const RespuestaVirtual: FC = () => {
           <div className="text-center py-6">Cargando interconsulta...</div>
         </div>
       </div>
-    );
+    )
 
   if (error) {
     return (
@@ -120,7 +118,7 @@ const RespuestaVirtual: FC = () => {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -255,7 +253,7 @@ const RespuestaVirtual: FC = () => {
             <button
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               onClick={() => {
-                console.log('Respuesta:', respuesta);
+                console.log('Respuesta:', respuesta)
                 // Aquí irá la lógica para enviar la respuesta
               }}
             >
@@ -265,5 +263,5 @@ const RespuestaVirtual: FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

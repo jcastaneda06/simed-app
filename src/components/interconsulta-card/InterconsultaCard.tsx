@@ -1,5 +1,5 @@
-import { FC, useState } from 'react';
-import { useRouter } from 'next/router';
+import { FC, useState } from 'react'
+import { useRouter } from 'next/router'
 import {
   ChevronDown,
   ChevronUp,
@@ -7,34 +7,34 @@ import {
   Clock,
   CheckCircle2,
   MessageSquare,
-} from 'lucide-react';
-import { Button } from '@/components/button/Button';
+} from 'lucide-react'
+import { Button } from '@/components/button/Button'
 
 type InterconsultaProps = {
-  interconsulta: any;
-  onStatusChange: (id: string, estado: string) => void;
-};
+  interconsulta: any
+  onStatusChange: (id: string, estado: string) => void
+}
 
 const InterconsultaCard: FC<InterconsultaProps> = ({
   interconsulta,
   onStatusChange,
 }) => {
-  const [expanded, setExpanded] = useState(false);
-  const [updating, setUpdating] = useState(false);
-  const router = useRouter();
+  const [expanded, setExpanded] = useState(false)
+  const [updating, setUpdating] = useState(false)
+  const router = useRouter()
 
   const handleRespuestaVirtual = () => {
-    router.push(`/interconsultas/${interconsulta._id}/respuesta-virtual`);
-  };
+    router.push(`/interconsultas/${interconsulta._id}/respuesta-virtual`)
+  }
 
   const getStatusColor = (estado: string) => {
     const colors: { [key: string]: string } = {
       PENDIENTE: 'bg-amber-100 text-amber-900',
       EN_PROCESO: 'bg-blue-100 text-blue-800',
       COMPLETADA: 'bg-green-100 text-green-800',
-    };
-    return colors[estado] || 'bg-gray-100 text-gray-800';
-  };
+    }
+    return colors[estado] || 'bg-gray-100 text-gray-800'
+  }
 
   const formatFecha = (fecha: Date) => {
     return new Date(fecha).toLocaleDateString('es-ES', {
@@ -44,8 +44,8 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
+  }
 
   return (
     <div className="bg-white shadow-lg rounded-lg border border-gray-200">
@@ -144,9 +144,9 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
                   <Button
                     variant="secondary"
                     onClick={(e: any) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('Respuesta Física');
+                      e.preventDefault()
+                      e.stopPropagation()
+                      console.log('Respuesta Física')
                     }}
                     className="flex items-center gap-2"
                   >
@@ -156,9 +156,9 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
                   <Button
                     variant="default"
                     onClick={(e: any) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleRespuestaVirtual();
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleRespuestaVirtual()
                     }}
                     className="flex items-center gap-2"
                   >
@@ -172,5 +172,5 @@ const InterconsultaCard: FC<InterconsultaProps> = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}

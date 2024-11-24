@@ -1,41 +1,41 @@
-import React, { useState, useEffect, FC, PropsWithChildren } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { User } from 'lucide-react';
+import React, { useState, useEffect, FC, PropsWithChildren } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { User } from 'lucide-react'
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
-  const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter()
+  const [isClient, setIsClient] = useState(false)
+  const [usuario, setUsuario] = useState<Usuario | null>(null)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    setIsClient(true);
-    const token = window.localStorage.getItem('token');
-    const usuarioGuardado = window.localStorage.getItem('usuario');
+    setIsClient(true)
+    const token = window.localStorage.getItem('token')
+    const usuarioGuardado = window.localStorage.getItem('usuario')
     if (usuarioGuardado) {
-      setUsuario(JSON.parse(usuarioGuardado));
+      setUsuario(JSON.parse(usuarioGuardado))
     }
     if (!token && router.pathname !== '/login') {
-      router.push('/login');
+      router.push('/login')
     }
-  }, [router]);
+  }, [router])
 
   // Si aún no estamos en el cliente, no renderizar nada
   if (!isClient) {
-    return null;
+    return null
   }
 
   // Verificar token una vez que estamos en el cliente
-  const token = window.localStorage.getItem('token');
+  const token = window.localStorage.getItem('token')
   if (!token && router.pathname !== '/login') {
-    return null;
+    return null
   }
 
   const navigationLinks = [
     { href: '/', label: 'Ver Interconsultas' },
     { href: '/crear-interconsulta', label: 'Crear Interconsulta' },
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -86,9 +86,9 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
               )}
               <button
                 onClick={() => {
-                  window.localStorage.removeItem('token');
-                  window.localStorage.removeItem('usuario');
-                  router.push('/login');
+                  window.localStorage.removeItem('token')
+                  window.localStorage.removeItem('usuario')
+                  router.push('/login')
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
               >
@@ -123,7 +123,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
         {children}
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout

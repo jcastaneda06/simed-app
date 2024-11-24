@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useState } from 'react'
+import { useRouter } from 'next/router'
 
 export default function Login() {
-  const router = useRouter();
+  const router = useRouter()
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
-  });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  })
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -24,16 +24,16 @@ export default function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(credentials),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al iniciar sesión');
+        throw new Error(data.error || 'Error al iniciar sesión')
       }
 
       // Guardar el token
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.token)
 
       // Guardar la información del usuario
       const usuarioInfo = {
@@ -42,24 +42,24 @@ export default function Login() {
         rol: data.usuario.rol,
         servicio: data.usuario.servicio,
         especialidad: data.usuario.especialidad,
-      };
+      }
 
-      localStorage.setItem('usuario', JSON.stringify(usuarioInfo));
+      localStorage.setItem('usuario', JSON.stringify(usuarioInfo))
 
       // Registro exitoso en consola
-      console.log('Sesión iniciada como:', usuarioInfo.nombre);
-      console.log('Rol:', usuarioInfo.rol);
-      console.log('Servicio:', usuarioInfo.servicio);
+      console.log('Sesión iniciada como:', usuarioInfo.nombre)
+      console.log('Rol:', usuarioInfo.rol)
+      console.log('Servicio:', usuarioInfo.servicio)
 
       // Redirigir al usuario
-      router.push('/');
+      router.push('/')
     } catch (err: any) {
-      console.error('Error de inicio de sesión:', err);
-      setError(err.message || 'Error al conectar con el servidor');
+      console.error('Error de inicio de sesión:', err)
+      setError(err.message || 'Error al conectar con el servidor')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -144,5 +144,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-  );
+  )
 }

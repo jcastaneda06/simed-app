@@ -1,8 +1,17 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import userEndpoints from '@/lib/endpoints/userEndpoints'
+import { useMutation } from '@tanstack/react-query'
+import { LoginResult, Usuario } from '@/types/Usuario'
+
+type LoginCredentials = {
+  email: string
+  password: string
+}
 
 export default function Login() {
   const router = useRouter()
+  const { loginUsuario } = userEndpoints()
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
@@ -10,8 +19,10 @@ export default function Login() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-  console.log('API_URL:', API_URL)
+  const loginMutation = useMutation<LoginResult, Error, LoginCredentials>({
+    mutationKey: ['login', credentials],
+    mutationFn: (payload) => loginUsuario(payload),
+  })
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -19,30 +30,22 @@ export default function Login() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      })
+      const response = await loginMutation.mutateAsync(credentials)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al iniciar sesión')
+      if (!response) {
+        throw new Error('Error al iniciar sesión')
       }
 
       // Guardar el token
-      localStorage.setItem('token', data.token)
+      localStorage.setItem('token', response.token)
 
       // Guardar la información del usuario
       const usuarioInfo = {
-        nombre: data.usuario.nombre,
-        email: data.usuario.email,
-        rol: data.usuario.rol,
-        servicio: data.usuario.servicio,
-        especialidad: data.usuario.especialidad,
+        nombre: response.usuario.nombre,
+        email: response.usuario.email,
+        rol: response.usuario.rol,
+        servicio: response.usuario.servicio,
+        especialidad: response.usuario.especialidad,
       }
 
       localStorage.setItem('usuario', JSON.stringify(usuarioInfo))

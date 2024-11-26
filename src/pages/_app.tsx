@@ -4,6 +4,9 @@ import '../styles/globals.css'
 import { useEffect } from 'react'
 
 import { AppProps } from 'next/app'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
@@ -20,15 +23,16 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [router])
 
-  // No usar Layout en la página de login
-  if (router.pathname === '/login') {
-    return <Component {...pageProps} />
-  }
-
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <QueryClientProvider client={queryClient}>
+      {router.pathname === '/login' ? (
+        <Component {...pageProps} />
+      ) : (
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      )}
+    </QueryClientProvider>
   )
 }
 

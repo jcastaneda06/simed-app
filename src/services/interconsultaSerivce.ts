@@ -1,7 +1,11 @@
 import Interconsulta from '@/models/Interconsulta'
 
-export const filterInterconsultas = async (filters: any) => {
-  const { estado, prioridad, servicio, tipoFiltro } = filters
+export const filterInterconsultas = async (
+  estado: string,
+  prioridad: string,
+  servicio: string
+) => {
+  // const { estado, prioridad, servicio, tipoFiltro } = filters
   const query: any = {}
 
   if (estado) query.estado = estado

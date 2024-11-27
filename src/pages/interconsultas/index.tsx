@@ -265,3 +265,5 @@ const RespuestaVirtual: FC = () => {
     </div>
   )
 }
+
+export default RespuestaVirtual

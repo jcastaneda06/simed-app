@@ -1,11 +1,11 @@
-import { CreateUsuarioDto, Usuario } from '@/types/Usuario'
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+import { CreateUsuarioDto } from '@/types/Usuario'
+import ConfigProvider from '@/config/ConfigProvider'
 
 function userEndpoints() {
+  const { apiUrl } = ConfigProvider()
   // Fetch all users
   async function fetchUsuarios() {
-    const response = await fetch(`${BASE_URL}/api/auth`)
+    const response = await fetch(`${apiUrl}/auth`)
     if (!response.ok) {
       throw new Error('Failed to fetch users')
     }
@@ -14,7 +14,7 @@ function userEndpoints() {
 
   // Register a new user
   async function registerUsuario(data: CreateUsuarioDto) {
-    const response = await fetch(`${BASE_URL}/api/auth?action=register`, {
+    const response = await fetch(`${apiUrl}/auth?action=register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -29,7 +29,7 @@ function userEndpoints() {
 
   // Login a user
   async function loginUsuario(data: { email: string; password: string }) {
-    const response = await fetch(`${BASE_URL}/api/auth?action=login`, {
+    const response = await fetch(`${apiUrl}/auth?action=login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

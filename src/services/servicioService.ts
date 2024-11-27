@@ -1,7 +1,11 @@
+import { connectToDatabase } from '@/lib/db'
 import Servicio from '@/models/Servicio'
 
 export const getAllServices = async () => {
-  return await Servicio.find().sort('nombre')
+  const db = await connectToDatabase()
+
+  const servicios = await Servicio.find({})
+  return servicios
 }
 
 export const getServiceById = async (id: string) => {

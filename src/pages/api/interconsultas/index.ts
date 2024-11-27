@@ -17,13 +17,6 @@ export default async function handler(
         const { id, estado, prioridad, servicio, tipoFiltro } = req.query
 
         if (id) {
-          const interconsulta = await getInterconsultaById(id as string)
-          if (!interconsulta) {
-            return res
-              .status(404)
-              .json({ exito: false, mensaje: 'Interconsulta no encontrada' })
-          }
-          return res.status(200).json({ exito: true, data: interconsulta })
         }
 
         const interconsultas = await filterInterconsultas({

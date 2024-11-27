@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import userEndpoints from '@/lib/endpoints/userEndpoints'
 import { useMutation } from '@tanstack/react-query'
-import { LoginResult, Usuario } from '@/types/Usuario'
+import { LoginResult } from '@/types/Usuario'
+import ConfigProvider from '@/config/ConfigProvider'
 
 type LoginCredentials = {
   email: string
@@ -11,6 +12,7 @@ type LoginCredentials = {
 
 export default function Login() {
   const router = useRouter()
+  const { tokenState: token } = ConfigProvider()
   const { loginUsuario } = userEndpoints()
   const [credentials, setCredentials] = useState({
     email: '',
@@ -22,6 +24,7 @@ export default function Login() {
   const loginMutation = useMutation<LoginResult, Error, LoginCredentials>({
     mutationKey: ['login', credentials],
     mutationFn: (payload) => loginUsuario(payload),
+    onSuccess: () => router.push('/'),
   })
 
   const handleSubmit = async (e: any) => {
@@ -36,8 +39,7 @@ export default function Login() {
         throw new Error('Error al iniciar sesión')
       }
 
-      // Guardar el token
-      localStorage.setItem('token', response.token)
+      token.set(response.token)
 
       // Guardar la información del usuario
       const usuarioInfo = {

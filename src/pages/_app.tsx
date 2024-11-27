@@ -11,18 +11,6 @@ const queryClient = new QueryClient()
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
-  useEffect(() => {
-    const token = window.localStorage.getItem('token')
-
-    if (
-      typeof window !== 'undefined' &&
-      !token &&
-      router.pathname !== '/login'
-    ) {
-      router.push('/login')
-    }
-  }, [router])
-
   return (
     <QueryClientProvider client={queryClient}>
       {router.pathname === '/login' ? (

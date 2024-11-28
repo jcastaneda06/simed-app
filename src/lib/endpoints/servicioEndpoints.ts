@@ -1,9 +1,6 @@
 import { useConfig } from '@/config/ConfigProvider'
 
-const servicioEndpoints = () => {
-  const { apiUrl, tokenState } = useConfig()
-  const token = tokenState.get()
-
+const servicioEndpoints = (apiUrl: string, token: string) => {
   const headers = {
     Authorization: `Bearer ${token}`,
   }

@@ -3,12 +3,14 @@ import { AlertTriangle } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { Interconsulta } from '@/types/Interconsulta'
+import { useConfig } from '@/config/ConfigProvider'
 
 const CrearInterconsulta = () => {
+  const { apiUrl, token } = useConfig()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
-  const { addInterconsulta } = interconsultaEndpoints()
+  const { addInterconsulta } = interconsultaEndpoints(apiUrl || '', token || '')
 
   const crearInterconsultaMutation = useMutation({
     mutationKey: ['addInterconsulta'],

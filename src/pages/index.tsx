@@ -19,12 +19,11 @@ import { useConfig } from '@/config/ConfigProvider'
 import { useRouter } from 'next/router'
 
 const Home: FC = () => {
-  const { userState } = useConfig()
-  const { user } = userState
-  const { getServicios } = servicioEndpoints()
+  const { user, apiUrl, token } = useConfig()
+  const { getServicios } = servicioEndpoints(apiUrl || '', token || '')
   const router = useRouter()
   const { getInterconsultasEnviadas, getInterconsultasRecibidas } =
-    interconsultaEndpoints()
+    interconsultaEndpoints(apiUrl || '', token || '')
   const [error, setError] = useState<string | undefined>(undefined)
   const [filtros, setFiltros] = useState<{ [key: string]: string }>({
     estado: '',

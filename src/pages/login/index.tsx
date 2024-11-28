@@ -12,8 +12,8 @@ type LoginCredentials = {
 
 export default function Login() {
   const router = useRouter()
-  const { tokenState: token, userState } = useConfig()
-  const { loginUsuario } = userEndpoints()
+  const { setToken, setUser, apiUrl } = useConfig()
+  const { loginUsuario } = userEndpoints(apiUrl || '')
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
@@ -39,7 +39,7 @@ export default function Login() {
         throw new Error('Error al iniciar sesión')
       }
 
-      token.set(response.token)
+      setToken(response.token)
 
       // Guardar la información del usuario
       const usuarioInfo: Usuario = {
@@ -51,7 +51,7 @@ export default function Login() {
       }
 
       localStorage.setItem('usuario', JSON.stringify(usuarioInfo))
-      userState.set(usuarioInfo)
+      setUser(usuarioInfo)
 
       // Redirigir al usuario
       router.push('/')

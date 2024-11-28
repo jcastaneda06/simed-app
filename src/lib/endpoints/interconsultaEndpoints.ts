@@ -2,10 +2,7 @@ import { useConfig } from '@/config/ConfigProvider'
 import { Interconsulta } from '@/types/Interconsulta'
 import { Usuario } from '@/types/Usuario'
 
-const interconsultaEndpoints = () => {
-  const { apiUrl, tokenState } = useConfig()
-  const token = tokenState.get()
-
+const interconsultaEndpoints = (apiUrl: string, token: string) => {
   const headers = {
     Authorization: `Bearer ${token}`,
   }

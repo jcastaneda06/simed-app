@@ -195,13 +195,13 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
             <div className="flex flex-col items-end gap-2">
               <span
                 className={`px-3 py-1 rounded-full text-sm border ${getStatusColor(
-                  interconsulta.estado
+                  interconsulta.estado || ''
                 )}`}
               >
                 {interconsulta.estado}
               </span>
               <span className="text-xs text-gray-500">
-                {formatFecha(interconsulta.fechaCreacion)}
+                {formatFecha(interconsulta.fechaCreacion || '')}
               </span>
               {expanded ? (
                 <ChevronUp className="h-5 w-5 text-gray-400" />

@@ -10,7 +10,7 @@ const ConfigProvider = () => {
     if (token) {
       setToken(token)
     }
-  }, [token])
+  }, [])
   return {
     apiUrl: API_URL,
     tokenState: {

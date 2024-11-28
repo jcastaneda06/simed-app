@@ -52,11 +52,6 @@ export default function Login() {
 
       localStorage.setItem('usuario', JSON.stringify(usuarioInfo))
 
-      // Registro exitoso en consola
-      console.log('Sesión iniciada como:', usuarioInfo.nombre)
-      console.log('Rol:', usuarioInfo.rol)
-      console.log('Servicio:', usuarioInfo.servicio)
-
       // Redirigir al usuario
       router.push('/')
     } catch (err: any) {

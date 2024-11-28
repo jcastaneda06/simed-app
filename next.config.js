@@ -4,11 +4,11 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3000/api/:path*',
-        basePath: false
-      }
+        destination: process.env.NEXT_PUBLIC_API_URL + 'api/:path*',
+        basePath: false,
+      },
     ]
-  }
+  },
 }
 
 module.exports = nextConfig

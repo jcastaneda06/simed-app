@@ -1,7 +1,7 @@
-import ConfigProvider from '@/config/ConfigProvider'
+import { useConfig } from '@/config/ConfigProvider'
 
 const servicioEndpoints = () => {
-  const { apiUrl, tokenState } = ConfigProvider()
+  const { apiUrl, tokenState } = useConfig()
   const token = tokenState.get()
 
   const headers = {

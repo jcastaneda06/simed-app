@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import userEndpoints from '@/lib/endpoints/userEndpoints'
 import { useMutation } from '@tanstack/react-query'
-import { LoginResult } from '@/types/Usuario'
-import ConfigProvider from '@/config/ConfigProvider'
+import { LoginResult, Usuario } from '@/types/Usuario'
+import { useConfig } from '@/config/ConfigProvider'
 
 type LoginCredentials = {
   email: string
@@ -12,7 +12,7 @@ type LoginCredentials = {
 
 export default function Login() {
   const router = useRouter()
-  const { tokenState: token } = ConfigProvider()
+  const { tokenState: token, userState } = useConfig()
   const { loginUsuario } = userEndpoints()
   const [credentials, setCredentials] = useState({
     email: '',
@@ -42,7 +42,7 @@ export default function Login() {
       token.set(response.token)
 
       // Guardar la información del usuario
-      const usuarioInfo = {
+      const usuarioInfo: Usuario = {
         nombre: response.usuario.nombre,
         email: response.usuario.email,
         rol: response.usuario.rol,
@@ -51,6 +51,7 @@ export default function Login() {
       }
 
       localStorage.setItem('usuario', JSON.stringify(usuarioInfo))
+      userState.set(usuarioInfo)
 
       // Redirigir al usuario
       router.push('/')

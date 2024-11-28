@@ -5,7 +5,7 @@ export type Servicio = {
   jefe: Jefe
   tipo: string
   activo: boolean
-  createdAt: string
+  createdAt?: string
 }
 
 export type Jefe = {

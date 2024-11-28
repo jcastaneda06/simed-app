@@ -1,4 +1,5 @@
 import ConfigProvider from '@/config/ConfigProvider'
+import { Interconsulta } from '@/types/Interconsulta'
 import { Usuario } from '@/types/Usuario'
 
 const interconsultaEndpoints = () => {
@@ -31,9 +32,20 @@ const interconsultaEndpoints = () => {
     return result.json()
   }
 
+  async function addInterconsulta(interconsulta: Interconsulta) {
+    const result = await fetch(`${apiUrl}/interconsultas/crear`, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(interconsulta),
+    })
+
+    return result.json()
+  }
+
   return {
     getInterconsultasEnviadas,
     getInterconsultasRecibidas,
+    addInterconsulta,
   }
 }
 

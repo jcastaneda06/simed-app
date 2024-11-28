@@ -66,7 +66,6 @@ export default async function handler(
     }
   } catch (error: any) {
     console.error(error)
-    console.log('aasdasdasdasd')
     return res.status(500).json({
       exito: false,
       mensaje: 'Error interno del servidor',

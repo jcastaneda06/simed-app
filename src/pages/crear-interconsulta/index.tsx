@@ -1,19 +1,19 @@
-import Layout from '@/layout/Layout'
 import { useState } from 'react'
-import {
-  ChevronDown,
-  ChevronUp,
-  AlertTriangle,
-  Clock,
-  CheckCircle2,
-  MessageSquare,
-} from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
+import { useMutation } from '@tanstack/react-query'
+import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
+import { Interconsulta } from '@/types/Interconsulta'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
 const CrearInterconsulta = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+  const { addInterconsulta } = interconsultaEndpoints()
+
+  const crearInterconsultaMutation = useMutation({
+    mutationKey: ['addInterconsulta'],
+    mutationFn: (payload: Interconsulta) => addInterconsulta(payload),
+  })
 
   const servicios = [
     { id: '672e05bad3ce20d6407a5143', nombre: 'Cirugía' },
@@ -23,11 +23,34 @@ const CrearInterconsulta = () => {
   const [formData, setFormData] = useState<{ [key: string]: any }>({
     paciente: {
       nombre: '',
-      edad: '',
+      edad: 0,
+      prioridad: '',
       numeroHistoria: '',
     },
-    servicioSolicitante: '',
-    servicioDestino: '',
+    servicioSolicitante: {
+      _id: '',
+      nombre: '',
+      descripcion: '',
+      jefe: {
+        nombre: '',
+        email: '',
+        telefono: '',
+      },
+      tipo: '',
+      activo: false,
+    },
+    servicioDestino: {
+      _id: '',
+      nombre: '',
+      descripcion: '',
+      jefe: {
+        nombre: '',
+        email: '',
+        telefono: '',
+      },
+      tipo: '',
+      activo: false,
+    },
     objetivoConsulta: '',
     historiaClinica: '',
     estadoClinico: {
@@ -36,11 +59,13 @@ const CrearInterconsulta = () => {
         presionArterial: '',
         frecuenciaCardiaca: '',
         frecuenciaRespiratoria: '',
-        temperatura: '',
+        temperatura: 0,
         saturacionOxigeno: '',
       },
     },
     laboratorios: {
+      tipo: '',
+      fechaUltimos: '',
       resultados: '',
       observaciones: '',
     },
@@ -59,7 +84,7 @@ const CrearInterconsulta = () => {
     prioridad: 'ALTA',
   })
 
-  const handleChange = (e: any, section: any, subsection: any = '') => {
+  const handleChange = (e: any, section: string, subsection: string = '') => {
     const { name, value } = e.target
 
     if (section && subsection) {
@@ -96,17 +121,16 @@ const CrearInterconsulta = () => {
     setSuccess(false)
 
     try {
-      const response = await fetch(`${API_URL}/api/interconsultas/crear`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(formData),
-      })
+      const response = await crearInterconsultaMutation.mutateAsync(
+        formData as Interconsulta
+      )
 
-      if (!response.ok) {
-        throw new Error('Error al crear la interconsulta')
+      if (response.error) {
+        throw new Error(
+          response.error
+            ? response.error.message
+            : 'Error creando interconsulta'
+        )
       }
 
       setSuccess(true)

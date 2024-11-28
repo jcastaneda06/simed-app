@@ -16,7 +16,6 @@ export default async function handler(
 ) {
   const { id, estado, prioridad, servicio } = req.query
   const interconsulta = await filterInterconsultas(estado, prioridad, servicio)
-  console.log(id, estado, prioridad, servicio)
   if (!interconsulta) {
     return res
       .status(404)

@@ -15,13 +15,16 @@ import { useQuery } from '@tanstack/react-query'
 import servicioEndpoints from '@/lib/endpoints/servicioEndpoints'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import CollapsibleSection from '@/components/collapsible-section/CollapsibleSection'
+import { useConfig } from '@/config/ConfigProvider'
+import { useRouter } from 'next/router'
 
 const Home: FC = () => {
-  const { getServicios } = servicioEndpoints()
+  const { user, apiUrl, token } = useConfig()
+  const { getServicios } = servicioEndpoints(apiUrl || '', token || '')
+  const router = useRouter()
   const { getInterconsultasEnviadas, getInterconsultasRecibidas } =
-    interconsultaEndpoints()
+    interconsultaEndpoints(apiUrl || '', token || '')
   const [error, setError] = useState<string | undefined>(undefined)
-  const [usuario, setUsuario] = useState<Usuario | undefined>(undefined)
   const [filtros, setFiltros] = useState<{ [key: string]: string }>({
     estado: '',
     prioridad: '',
@@ -29,45 +32,38 @@ const Home: FC = () => {
   })
 
   const serviciosQuery = useQuery<Servicio[]>({
-    queryKey: ['getServicios', usuario],
+    queryKey: ['getServicios', user],
     queryFn: () => getServicios(),
-    enabled: usuario?.rol === 'ADMIN',
+    enabled: user?.rol === 'ADMIN',
   })
 
   const interconsultasEnviadasQuery = useQuery<Interconsulta[]>({
-    queryKey: ['getInterconsultasEnviadas', filtros, usuario],
+    queryKey: ['getInterconsultasEnviadas', filtros, user],
     queryFn: () => {
       const query = Object.keys(filtros)
         .map((key) => `${key}=${filtros[key]}`)
         .join('&')
 
-      return getInterconsultasEnviadas(query, usuario!)
+      return getInterconsultasEnviadas(query, user!)
     },
-    enabled: !!usuario,
+    enabled: !!user,
   })
 
   const interconsultasRecibidasQuery = useQuery<Interconsulta[]>({
-    queryKey: ['getInterconsultasRecibidas', filtros, usuario],
+    queryKey: ['getInterconsultasRecibidas', filtros, user],
     queryFn: () => {
       const query = Object.keys(filtros)
         .map((key) => `${key}=${filtros[key]}`)
         .join('&')
 
-      return getInterconsultasRecibidas(query, usuario!)
+      return getInterconsultasRecibidas(query, user!)
     },
-    enabled: !!usuario,
+    enabled: !!user,
   })
 
   useEffect(() => {
-    const usuarioGuardado = localStorage.getItem('usuario')
-    if (usuarioGuardado) {
-      try {
-        const usuarioData = JSON.parse(usuarioGuardado)
-        setUsuario(usuarioData)
-      } catch (error) {
-        console.error('Error al procesar datos del usuario:', error)
-        setError('Error al cargar la información del usuario')
-      }
+    if (!user) {
+      router.push('/login')
     }
   }, [])
 
@@ -195,7 +191,7 @@ const Home: FC = () => {
             </SelectContent>
           </Select>
 
-          {usuario?.rol === 'ADMIN' && (
+          {user?.rol === 'ADMIN' && (
             <Select
               value={filtros.servicio}
               onValueChange={(value) =>

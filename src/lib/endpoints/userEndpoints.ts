@@ -1,8 +1,7 @@
+import { useConfig } from '@/config/ConfigProvider'
 import { CreateUsuarioDto } from '@/types/Usuario'
-import ConfigProvider from '@/config/ConfigProvider'
 
-function userEndpoints() {
-  const { apiUrl } = ConfigProvider()
+function userEndpoints(apiUrl: string) {
   // Fetch all users
   async function fetchUsuarios() {
     const response = await fetch(`${apiUrl}/auth`)

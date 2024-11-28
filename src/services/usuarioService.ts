@@ -7,10 +7,8 @@ import { connectToDatabase } from '../lib/db'
 
 const loginUsuario = async (email: string, password: string) => {
   await connectToDatabase()
-
-  const usuario = await Usuario.findOne({ email })
-    .select('+password')
-    .populate('servicio')
+  const usuario = await Usuario.findOne({ email }).select('+password')
+  // .populate('servicio')
   if (!usuario || !usuario.activo) {
     throw new Error('Credenciales inválidas')
   }

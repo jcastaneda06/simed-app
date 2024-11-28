@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 
 import { AppProps } from 'next/app'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+import { ConfigProvider, useConfig } from '@/config/ConfigProvider'
 
 const queryClient = new QueryClient()
 
@@ -13,13 +14,15 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {router.pathname === '/login' ? (
-        <Component {...pageProps} />
-      ) : (
-        <Layout>
+      <ConfigProvider>
+        {router.pathname === '/login' ? (
           <Component {...pageProps} />
-        </Layout>
-      )}
+        ) : (
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        )}
+      </ConfigProvider>
     </QueryClientProvider>
   )
 }

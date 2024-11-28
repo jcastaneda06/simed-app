@@ -1,6 +1,4 @@
 import mongoose from 'mongoose'
-import dns from 'dns'
-import { MongoClient } from 'mongodb'
 
 declare global {
   var mongoose: {
@@ -15,7 +13,6 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null }
 }
 export async function connectToDatabase() {
-  dns.setServers(['8.8.8.8'])
   if (cached.conn) {
     return cached.conn
   }

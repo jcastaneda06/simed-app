@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import { connectToDatabase } from '../lib/db' // Reuse your DB connection logic
 
 // Define the Interconsulta schema and model
 const notaSchema = new mongoose.Schema({

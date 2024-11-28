@@ -6,7 +6,7 @@ interface Jefe {
   telefono: string
 }
 
-export interface Servicio extends Document {
+interface Servicio extends Document {
   nombre: string
   descripcion: string
   jefe: Jefe
@@ -76,8 +76,8 @@ const serviceSchema = new Schema<Servicio>(
   }
 )
 
-// Export the model or retrieve it if it already exists (to prevent re-compilation issues)
 const Servicio =
   mongoose.models.Servicio ||
   mongoose.model<Servicio>('Servicio', serviceSchema)
+
 export default Servicio

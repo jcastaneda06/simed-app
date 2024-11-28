@@ -1,14 +1,14 @@
 export type Usuario = {
-  _id: string
+  _id?: string
   nombre: string
-  password: string
+  password?: string
   email: string
   rol: string
   servicio: string
-  activo: boolean
+  activo?: boolean
   especialidad: string
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type CreateUsuarioDto = {

@@ -1,12 +1,12 @@
-import { filterInterconsultas } from '@/services/interconsultaSerivce'
+import { getInterconsultas } from '@/services/interconsultaSerivce'
 import { NextApiRequest, NextApiResponse } from 'next'
 
 interface InterconsultaReq extends NextApiRequest {
   query: {
-    id: string
     estado: string
     prioridad: string
-    servicio: string
+    idServicio: string
+    filterBy: string
   }
 }
 
@@ -14,8 +14,13 @@ export default async function handler(
   req: InterconsultaReq,
   res: NextApiResponse
 ) {
-  const { id, estado, prioridad, servicio } = req.query
-  const interconsulta = await filterInterconsultas(estado, prioridad, servicio)
+  const query = req.query
+  const interconsulta = await getInterconsultas({
+    estado: query.estado,
+    prioridad: query.prioridad,
+    servicio: query.idServicio,
+    filterBy: query.filterBy,
+  })
   if (!interconsulta) {
     return res
       .status(404)

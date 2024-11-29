@@ -1,30 +1,14 @@
-import { useConfig } from '@/config/ConfigProvider'
 import { Interconsulta } from '@/types/Interconsulta'
-import { Usuario } from '@/types/Usuario'
 
 const interconsultaEndpoints = (apiUrl: string, token: string) => {
   const headers = {
     Authorization: `Bearer ${token}`,
   }
 
-  async function getInterconsultasEnviadas(query: string, usuario: Usuario) {
-    const result = await fetch(
-      `${apiUrl}/interconsultas/enviadas?${query}&idServicio=${usuario?.servicio}`,
-      {
-        headers: headers,
-      }
-    )
-
-    return result.json()
-  }
-
-  async function getInterconsultasRecibidas(query: string, usuario: Usuario) {
-    const result = await fetch(
-      `${apiUrl}/interconsultas/recibidas?${query}&idServicio=${usuario?.servicio}`,
-      {
-        headers: headers,
-      }
-    )
+  async function getInterconsultas(query: string) {
+    const result = await fetch(`${apiUrl}/interconsultas?${query}`, {
+      headers: headers,
+    })
 
     return result.json()
   }
@@ -39,11 +23,17 @@ const interconsultaEndpoints = (apiUrl: string, token: string) => {
     return result.json()
   }
 
-  return {
-    getInterconsultasEnviadas,
-    getInterconsultasRecibidas,
-    addInterconsulta,
+  async function updateInterconsultaState(id: string, estado: string) {
+    const result = await fetch(`${apiUrl}/interconsultas/${id}/estado`, {
+      method: 'PUT',
+      headers: headers,
+      body: JSON.stringify({ estado }),
+    })
+
+    return result.json()
   }
+
+  return { getInterconsultas, addInterconsulta, updateInterconsultaState }
 }
 
 export default interconsultaEndpoints

@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { Interconsulta } from '@/types/Interconsulta'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import {
   AlertTriangle,
   Clock,
@@ -9,6 +9,9 @@ import {
   ChevronDown,
   MessageSquare,
 } from 'lucide-react'
+import { useMutation } from '@tanstack/react-query'
+import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
+import { useConfig } from '@/config/ConfigProvider'
 
 type InterconsultaCardProps = {
   interconsulta: Interconsulta
@@ -27,10 +30,23 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   loading,
   error,
 }) => {
+  const { apiUrl, token } = useConfig()
+  const { updateInterconsultaState } = interconsultaEndpoints(
+    apiUrl || '',
+    token || ''
+  )
   const [expanded, setExpanded] = useState(false)
-  const [updating, setUpdating] = useState(false)
-  const [updateError, setUpdateError] = useState<string>('')
-  const router = Router
+  const router = useRouter()
+
+  const interconsultaStateMutation = useMutation<
+    Interconsulta,
+    Error,
+    { estado: string }
+  >({
+    mutationKey: ['updateIntercunsultaState', interconsulta._id],
+    mutationFn: (payload: { estado: string }) =>
+      updateInterconsultaState(interconsulta._id || '', payload.estado),
+  })
 
   const formatSignoVitalLabel = (key: string) => {
     const labels: { [key: string]: string } = {
@@ -55,67 +71,15 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     console.log('Respuesta Física clickeada')
   }
 
-  if (
-    loading &&
-    interconsultasEnviadas.length === 0 &&
-    interconsultasRecibidas.length === 0
-  ) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-4">
-          <div className="text-center py-6">Cargando interconsultas...</div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-4">
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-            <div className="flex items-center">
-              <AlertTriangle className="h-5 w-5 mr-2" />
-              <span>{error}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   const handleStatusChange = async (newStatus: string) => {
-    if (updating) return
+    if (interconsultaStateMutation.isPending) return
 
-    try {
-      setUpdating(true)
-      setUpdateError('')
-      const token = window.localStorage.getItem('token')
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/interconsultas/${interconsulta._id}/estado`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ estado: newStatus }),
-        }
-      )
+    const response = await interconsultaStateMutation.mutateAsync({
+      estado: newStatus,
+    })
 
-      if (!response.ok) {
-        throw new Error('Error al actualizar el estado')
-      }
-
-      const data = await response.json()
-      if (data.exito) {
-        onStatusChange()
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      setUpdateError('Error al actualizar el estado')
-    } finally {
-      setUpdating(false)
+    if (response.estado === newStatus) {
+      onStatusChange()
     }
   }
 
@@ -163,6 +127,35 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     !interconsulta.servicioSolicitante
   ) {
     return null
+  }
+
+  if (
+    loading &&
+    interconsultasEnviadas.length === 0 &&
+    interconsultasRecibidas.length === 0
+  ) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-4">
+          <div className="text-center py-6">Cargando interconsultas...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-4">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+            <div className="flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              <span>{error}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -247,18 +240,15 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                   <p className="text-sm text-gray-800">
                     Estado actual: {interconsulta.estado}
                   </p>
-                  {updateError && (
-                    <p className="text-sm text-red-600">{updateError}</p>
-                  )}
                 </div>
                 <select
                   value={interconsulta.estado}
                   onChange={(e) => handleStatusChange(e.target.value)}
-                  disabled={updating}
+                  disabled={interconsultaStateMutation.isPending}
                   className={`
                       rounded-md border border-gray-300 px-3 py-2 text-gray-700 
                       focus:outline-none focus:ring-2 focus:ring-blue-500
-                      ${updating ? 'opacity-50 cursor-not-allowed' : ''}
+                      ${interconsultaStateMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
                 >
                   <option value="PENDIENTE">Pendiente</option>

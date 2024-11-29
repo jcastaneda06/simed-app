@@ -3,24 +3,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { User } from 'lucide-react'
 import { Usuario } from '@/types/Usuario'
+import { useConfig } from '@/config/ConfigProvider'
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter()
-  const [isClient, setIsClient] = useState(false)
-  const [usuario, setUsuario] = useState<Usuario | null>(null)
-
-  useEffect(() => {
-    setIsClient(true)
-    const usuarioGuardado = window.localStorage.getItem('usuario')
-    if (usuarioGuardado) {
-      setUsuario(JSON.parse(usuarioGuardado))
-    }
-  }, [])
-
-  // Si aún no estamos en el cliente, no renderizar nada
-  if (!isClient) {
-    return null
-  }
+  const { user } = useConfig()
 
   // // Verificar token una vez que estamos en el cliente
   // const token = window.localStorage.getItem('token')
@@ -67,15 +54,15 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
 
             {/* Botón de cerrar sesión */}
             <div className="flex items-center">
-              {usuario && (
+              {user && (
                 <div className="mr-4 px-3 py-2 rounded-lg bg-gray-100 text-sm flex items-center">
                   <User className="h-5 w-5 text-gray-500 mr-2" />
                   <div>
                     <span className="font-medium text-gray-700">
-                      {usuario.nombre || usuario.email}
+                      {user.nombre || user.email}
                     </span>
                     <span className="ml-2 text-gray-500 text-xs">
-                      {usuario.rol || 'Usuario'}
+                      {user.rol || 'Usuario'}
                     </span>
                   </div>
                 </div>

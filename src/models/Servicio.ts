@@ -6,7 +6,7 @@ interface Jefe {
   telefono: string
 }
 
-interface Servicio extends Document {
+interface ServicioShema extends Document {
   nombre: string
   descripcion: string
   jefe: Jefe
@@ -15,7 +15,7 @@ interface Servicio extends Document {
   createdAt: Date
 }
 
-const serviceSchema = new Schema<Servicio>(
+const servicioSchema = new Schema<ServicioShema>(
   {
     nombre: {
       type: String,
@@ -76,8 +76,8 @@ const serviceSchema = new Schema<Servicio>(
   }
 )
 
-const Servicio =
-  mongoose.models.Servicio ||
-  mongoose.model<Servicio>('Servicio', serviceSchema)
+export const Servicio =
+  (mongoose.models.Servicio as mongoose.Model<ServicioShema>) ||
+  mongoose.model<ServicioShema>('Servicio', servicioSchema)
 
 export default Servicio

@@ -32,35 +32,23 @@ export default function Login() {
     setLoading(true)
     setError(null)
 
-    try {
-      const response = await loginMutation.mutateAsync(credentials)
+    const response = await loginMutation.mutateAsync(credentials)
 
-      if (!response) {
-        throw new Error('Error al iniciar sesión')
-      }
-
-      setToken(response.token)
-
-      // Guardar la información del usuario
-      const usuarioInfo: Usuario = {
-        nombre: response.usuario.nombre,
-        email: response.usuario.email,
-        rol: response.usuario.rol,
-        servicio: response.usuario.servicio,
-        especialidad: response.usuario.especialidad,
-      }
-
-      localStorage.setItem('usuario', JSON.stringify(usuarioInfo))
-      setUser(usuarioInfo)
-
-      // Redirigir al usuario
-      router.push('/')
-    } catch (err: any) {
-      console.error('Error de inicio de sesión:', err)
-      setError(err.message || 'Error al conectar con el servidor')
-    } finally {
-      setLoading(false)
+    const usuarioInfo: Usuario = {
+      nombre: response.usuario.nombre,
+      email: response.usuario.email,
+      rol: response.usuario.rol,
+      servicio: response.usuario.servicio,
+      especialidad: response.usuario.especialidad,
     }
+
+    localStorage.setItem('token', response.token)
+    localStorage.setItem('usuario', JSON.stringify(usuarioInfo))
+    setToken(response.token)
+    setUser(usuarioInfo)
+
+    // Redirigir al usuario
+    router.push('/')
   }
 
   return (

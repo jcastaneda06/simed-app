@@ -17,18 +17,20 @@ import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import CollapsibleSection from '@/components/collapsible-section/CollapsibleSection'
 import { useConfig } from '@/config/ConfigProvider'
 import { useRouter } from 'next/router'
+import Spinner from '@/components/spinner/Spinner'
 
 const Home: FC = () => {
   const { user, apiUrl, token } = useConfig()
   const { getServicios } = servicioEndpoints(apiUrl || '', token || '')
   const router = useRouter()
-  const { getInterconsultasEnviadas, getInterconsultasRecibidas } =
-    interconsultaEndpoints(apiUrl || '', token || '')
-  const [error, setError] = useState<string | undefined>(undefined)
+  const { getInterconsultas } = interconsultaEndpoints(
+    apiUrl || '',
+    token || ''
+  )
   const [filtros, setFiltros] = useState<{ [key: string]: string }>({
     estado: '',
     prioridad: '',
-    servicio: '',
+    idServicio: user?.servicio || '',
   })
 
   const serviciosQuery = useQuery<Servicio[]>({
@@ -40,54 +42,60 @@ const Home: FC = () => {
   const interconsultasEnviadasQuery = useQuery<Interconsulta[]>({
     queryKey: ['getInterconsultasEnviadas', filtros, user],
     queryFn: () => {
-      const query = Object.keys(filtros)
+      let query = Object.keys(filtros)
         .map((key) => `${key}=${filtros[key]}`)
         .join('&')
 
-      return getInterconsultasEnviadas(query, user!)
+      query += '&filterBy=enviadas'
+      return getInterconsultas(query)
     },
-    enabled: !!user,
+    enabled: !!user?.servicio && !!filtros.idServicio,
   })
 
   const interconsultasRecibidasQuery = useQuery<Interconsulta[]>({
     queryKey: ['getInterconsultasRecibidas', filtros, user],
     queryFn: () => {
-      const query = Object.keys(filtros)
+      let query = Object.keys(filtros)
         .map((key) => `${key}=${filtros[key]}`)
         .join('&')
 
-      return getInterconsultasRecibidas(query, user!)
+      query += '&filterBy=recibidas'
+      return getInterconsultas(query)
     },
-    enabled: !!user,
+    enabled: !!user?.servicio,
   })
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login')
+    if (user) {
+      setFiltros((prev) => ({
+        ...prev,
+        idServicio: user.servicio,
+      }))
     }
-  }, [])
+  }, [user])
 
   if (
     interconsultasEnviadasQuery.isLoading ||
     interconsultasRecibidasQuery.isLoading
   ) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-4">
-          <div className="text-center py-6">Cargando interconsultas...</div>
-        </div>
+      <div className="flex justify-center items-center h-full">
+        <Spinner />
       </div>
     )
   }
 
-  if (error) {
+  if (
+    interconsultasEnviadasQuery.isError ||
+    interconsultasRecibidasQuery.isError
+  ) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-4">
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
             <div className="flex items-center">
               <AlertTriangle className="h-5 w-5 mr-2" />
-              <span>{error}</span>
+              <span>{'Error'}</span>
             </div>
           </div>
         </div>
@@ -248,7 +256,7 @@ const Home: FC = () => {
                         interconsultasEnviadasQuery.refetch()
                       }
                       loading={interconsultasEnviadasQuery.isLoading}
-                      error={error || ''}
+                      error={interconsultasEnviadasQuery.error ? 'Error' : ''}
                       interconsultasEnviadas={interconsultasEnviadasQuery.data}
                       interconsultasRecibidas={
                         interconsultasRecibidasQuery.data || []
@@ -278,7 +286,7 @@ const Home: FC = () => {
                       interconsultasRecibidasQuery.refetch()
                     }
                     loading={interconsultasRecibidasQuery.isLoading}
-                    error={error || ''}
+                    error={interconsultasRecibidasQuery.error ? 'Error' : ''}
                     interconsultasEnviadas={
                       interconsultasEnviadasQuery.data || []
                     }

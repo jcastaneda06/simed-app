@@ -1,3 +1,4 @@
+import { type Interconsulta as InterconsultaSchema } from '@/types/Interconsulta'
 import mongoose from 'mongoose'
 
 // Define the Interconsulta schema and model
@@ -85,8 +86,8 @@ interconsultaSchema.index({ estado: 1 })
 interconsultaSchema.index({ prioridad: 1 })
 interconsultaSchema.index({ fechaCreacion: -1 })
 
-const Interconsulta =
-  mongoose.models.Interconsulta ||
-  mongoose.model('Interconsulta', interconsultaSchema)
+export const Interconsulta =
+  (mongoose.models.Interconsulta as mongoose.Model<InterconsultaSchema>) ||
+  mongoose.model<InterconsultaSchema>('Interconsulta', interconsultaSchema)
 
 export default Interconsulta

@@ -1,4 +1,5 @@
 import { Usuario } from '@/types/Usuario'
+import { useRouter } from 'next/router'
 import React, {
   createContext,
   useContext,
@@ -29,13 +30,28 @@ export const ConfigProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<Usuario | null>(null)
   const [apiUrl] = useState(process.env.NEXT_PUBLIC_API_URL)
+  const router = useRouter()
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token')
+    const storedUser = localStorage.getItem('usuario')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+
     if (storedToken) {
       setToken(storedToken)
     }
   }, [])
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token')
+    const storedUser = localStorage.getItem('usuario')
+
+    if (!storedToken || !storedUser) {
+      router.push('/login')
+    }
+  }, [token, user])
 
   return (
     <ConfigContext.Provider value={{ token, user, setToken, setUser, apiUrl }}>

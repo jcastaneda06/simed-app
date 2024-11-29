@@ -1,26 +1,65 @@
+import Servicio from '@/models/Servicio'
 import Interconsulta from '@/models/Interconsulta'
+import { connectToDatabase } from '@/lib/db'
 
-export const filterInterconsultas = async (
-  estado: string,
-  prioridad: string,
+type InterconsultaDto = {
+  estado: string
+  prioridad: string
   servicio: string
-) => {
-  // const { estado, prioridad, servicio, tipoFiltro } = filters
-  const query: any = {}
+  filterBy: string
+}
 
-  if (estado) query.estado = estado
-  if (prioridad) query.prioridad = prioridad
-  if (servicio) {
-    query.$or = [
-      { servicioSolicitante: servicio },
-      { servicioDestino: servicio },
-    ]
+type InterconsultaQuery = {
+  estado?: string
+  prioridad?: string
+  servicioSolicitante?: { $ne: string } | { $eq: string }
+  servicioDestino?: { $ne: string } | { $eq: string }
+}
+
+console.log(Servicio.db.model('Servicio', Servicio.schema))
+export const getInterconsultas = async (fields: InterconsultaDto) => {
+  await connectToDatabase()
+  if (fields.filterBy === 'recibidas') {
+    let query: InterconsultaQuery = {
+      servicioDestino: { $eq: fields.servicio },
+    }
+
+    if (fields.estado) {
+      query = { ...query, estado: fields.estado }
+    }
+
+    if (fields.prioridad) {
+      query = { ...query, prioridad: fields.prioridad }
+    }
+
+    const result = Interconsulta.find(query)
+      .populate('servicioSolicitante', 'nombre') //ref: 'Servicio'
+      .populate('servicioDestino', 'nombre') //ref: 'Servicio'
+      .sort({ fechaCreacion: -1 })
+
+    return result
   }
 
-  return Interconsulta.find(query)
-    .populate('servicioSolicitante', 'nombre')
-    .populate('servicioDestino', 'nombre')
-    .sort({ fechaCreacion: -1 })
+  if (fields.filterBy === 'enviadas') {
+    let query: InterconsultaQuery = {
+      servicioSolicitante: { $eq: fields.servicio },
+    }
+
+    if (fields.estado) {
+      query = { ...query, estado: fields.estado }
+    }
+
+    if (fields.prioridad) {
+      query = { ...query, prioridad: fields.prioridad }
+    }
+
+    const result = Interconsulta.find(query)
+      .populate('servicioSolicitante', 'nombre') //ref: 'Servicio'
+      .populate('servicioDestino', 'nombre') //ref: 'Servicio'
+      .sort({ fechaCreacion: -1 })
+
+    return result
+  }
 }
 
 export const createInterconsulta = async (data: any) => {
@@ -45,10 +84,12 @@ export const getInterconsultasByService = async (
 }
 
 export const updateInterconsultaState = async (id: string, estado: string) => {
+  await connectToDatabase()
+
   if (
     !['PENDIENTE', 'EN_PROCESO', 'COMPLETADA', 'CANCELADA'].includes(estado)
   ) {
-    throw new Error('Estado no válido')
+    throw new Error('Estado no válido: ' + estado)
   }
 
   return Interconsulta.findByIdAndUpdate(

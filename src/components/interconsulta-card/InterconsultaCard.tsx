@@ -1,5 +1,5 @@
 import { FC, useState } from 'react'
-import { Interconsulta } from '@/types/Interconsulta'
+import { Interconsulta, RespuestaInterconsulta } from '@/types/Interconsulta'
 import { useRouter } from 'next/router'
 import {
   AlertTriangle,
@@ -8,10 +8,12 @@ import {
   ChevronUp,
   ChevronDown,
   MessageSquare,
+  Eye,
 } from 'lucide-react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
+import { Button } from '../button/Button'
 
 type InterconsultaCardProps = {
   interconsulta: Interconsulta
@@ -35,8 +37,17 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     apiUrl || '',
     token || ''
   )
+  const { getRespuestaByInterconsultaId } = interconsultaEndpoints(
+    apiUrl || '',
+    token || ''
+  )
   const [expanded, setExpanded] = useState(false)
   const router = useRouter()
+
+  const respuestaQuery = useQuery<RespuestaInterconsulta>({
+    queryKey: ['respuesta', interconsulta._id],
+    queryFn: () => getRespuestaByInterconsultaId(interconsulta._id || ''),
+  })
 
   const interconsultaStateMutation = useMutation<
     Interconsulta,
@@ -62,7 +73,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   const handleRespuestaVirtual = (e: any) => {
     e.preventDefault()
     e.stopPropagation()
-    router.push(`/interconsultas/${interconsulta._id}/respuesta-virtual`)
+    router.push(`/interconsulta/${interconsulta._id}`)
   }
 
   const handleRespuestaFisica = (e: any) => {
@@ -209,27 +220,39 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="grid gap-6">
               {/* Buttons section - only show for EN_PROCESO status */}
-              {interconsulta.estado === 'EN_PROCESO' && (
-                <div className="border-b border-gray-100 pb-4">
-                  <div className="flex justify-end space-x-4">
-                    <button
-                      type="button"
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                      onClick={handleRespuestaFisica}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Respuesta Física
-                    </button>
-                    <button
-                      type="button"
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                      onClick={handleRespuestaVirtual}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      Respuesta Virtual
-                    </button>
-                  </div>
-                </div>
+              {respuestaQuery.data?.respuesta ? (
+                <Button
+                  text="Ver respuesta"
+                  icon={<Eye className="h-4 w-4" />}
+                  onClick={() =>
+                    router.push(`/interconsulta/${interconsulta._id}`)
+                  }
+                />
+              ) : (
+                <>
+                  {interconsulta.estado === 'EN_PROCESO' && (
+                    <div className="border-b border-gray-100 pb-4">
+                      <div className="flex justify-end space-x-4">
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                          onClick={handleRespuestaFisica}
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          Respuesta Física
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                          onClick={handleRespuestaVirtual}
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          Respuesta Virtual
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">

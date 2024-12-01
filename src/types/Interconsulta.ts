@@ -69,3 +69,10 @@ export type Notificacion = {
   fecha: string
   leida: boolean
 }
+
+export type RespuestaInterconsulta = {
+  _id?: string
+  interconsulta: string
+  respuesta: string
+  createdAt?: string
+}

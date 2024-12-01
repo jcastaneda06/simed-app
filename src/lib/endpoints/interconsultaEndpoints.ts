@@ -1,4 +1,4 @@
-import { Interconsulta } from '@/types/Interconsulta'
+import { Interconsulta, RespuestaInterconsulta } from '@/types/Interconsulta'
 
 const interconsultaEndpoints = (apiUrl: string, token: string) => {
   const headers = {
@@ -7,6 +7,14 @@ const interconsultaEndpoints = (apiUrl: string, token: string) => {
 
   async function getInterconsultas(query: string) {
     const result = await fetch(`${apiUrl}/interconsultas?${query}`, {
+      headers: headers,
+    })
+
+    return result.json()
+  }
+
+  async function getInterconsultaById(id: string) {
+    const result = await fetch(`${apiUrl}/interconsultas/${id}`, {
       headers: headers,
     })
 
@@ -33,7 +41,35 @@ const interconsultaEndpoints = (apiUrl: string, token: string) => {
     return result.json()
   }
 
-  return { getInterconsultas, addInterconsulta, updateInterconsultaState }
+  async function getRespuestaByInterconsultaId(id: string) {
+    const result = await fetch(`${apiUrl}/interconsultas/${id}/respuesta`, {
+      headers: headers,
+    })
+
+    return result.json()
+  }
+
+  async function responderInterconsulta(respuesta: RespuestaInterconsulta) {
+    const result = await fetch(
+      `${apiUrl}/interconsultas/${respuesta.interconsulta}/respuesta`,
+      {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(respuesta),
+      }
+    )
+
+    return result.json()
+  }
+
+  return {
+    getInterconsultas,
+    addInterconsulta,
+    updateInterconsultaState,
+    getInterconsultaById,
+    getRespuestaByInterconsultaId,
+    responderInterconsulta,
+  }
 }
 
 export default interconsultaEndpoints

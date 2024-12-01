@@ -1,6 +1,12 @@
-import { useState, useEffect, FC } from 'react'
+import { useState, FC, useRef } from 'react'
 import { useRouter } from 'next/router'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Printer } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
+import { useConfig } from '@/config/ConfigProvider'
+import { RespuestaInterconsulta } from '@/types/Interconsulta'
+import { Button } from '@/components/button/Button'
+import { useReactToPrint } from 'react-to-print'
 
 // Example structure of interconsulta. Adjust as needed to match your API.
 interface Interconsulta {
@@ -31,57 +37,48 @@ interface Interconsulta {
 
 const RespuestaVirtual: FC = () => {
   const router = useRouter()
-  const { id } = router.query
-  const [interconsulta, setInterconsulta] = useState<Interconsulta | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { id } = router.query as { id: string }
+  const { apiUrl, token } = useConfig()
+  const {
+    getRespuestaByInterconsultaId,
+    getInterconsultaById,
+    responderInterconsulta,
+    updateInterconsultaState,
+  } = interconsultaEndpoints(apiUrl || '', token || '')
+  const printRef = useRef<HTMLDivElement>(null)
+  const reactToPrintFn = useReactToPrint({ contentRef: printRef })
   const [respuesta, setRespuesta] = useState('')
+  const [error, setError] = useState(false)
 
-  useEffect(() => {
-    if (id) {
-      fetchInterconsulta()
-    }
-  }, [id])
+  const interconsultaQuery = useQuery<Interconsulta>({
+    queryKey: ['interconsulta', id],
+    queryFn: () => getInterconsultaById(id),
+  })
 
-  const fetchInterconsulta = async () => {
-    try {
-      const token = window.localStorage.getItem('token')
-      if (!token) {
-        router.push('/login')
-        return
-      }
+  const respuestaInterconsultaQuery = useQuery<RespuestaInterconsulta>({
+    queryKey: ['respuestaInterconsulta', id],
+    queryFn: () => getRespuestaByInterconsultaId(id),
+  })
 
-      setLoading(true)
+  const interconsulta = interconsultaQuery.data
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/interconsultas/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+  const respuestaInterconsultaMutation = useMutation<
+    RespuestaInterconsulta,
+    Error,
+    any
+  >({
+    mutationKey: ['respuestaInterconsulta', id],
+    mutationFn: (payload: RespuestaInterconsulta) =>
+      responderInterconsulta(payload),
+    onError: () => setError(true),
+  })
 
-      if (response.status === 401) {
-        router.push('/login')
-        return
-      }
+  const updateInterconsultaMutation = useMutation({
+    mutationKey: ['updateInterconsulta', id],
+    mutationFn: (id: string) => updateInterconsultaState(id, 'COMPLETADA'),
 
-      if (!response.ok) {
-        throw new Error('Error en la respuesta del servidor')
-      }
-
-      const data = await response.json()
-      setInterconsulta(data.data)
-      setError(null)
-    } catch (err: any) {
-      console.error('Error fetching interconsulta:', err)
-      setError(err.message || 'Error al cargar la interconsulta')
-    } finally {
-      setLoading(false)
-    }
-  }
-
+    onSuccess: () => router.push('/'),
+  })
   const formatFecha = (fecha: string | undefined) => {
     if (!fecha) return 'Fecha inválida'
     try {
@@ -98,7 +95,20 @@ const RespuestaVirtual: FC = () => {
     }
   }
 
-  if (loading || !interconsulta)
+  const handleSubmit = async () => {
+    const payload = {
+      interconsulta: id,
+      respuesta: respuesta,
+    } satisfies RespuestaInterconsulta
+
+    const response = await respuestaInterconsultaMutation.mutateAsync(payload)
+
+    if (response && !error) {
+      updateInterconsultaMutation.mutateAsync(id)
+    }
+  }
+
+  if (interconsultaQuery.isLoading)
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-4">
@@ -107,13 +117,13 @@ const RespuestaVirtual: FC = () => {
       </div>
     )
 
-  if (error) {
+  if (interconsultaQuery.error) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-4">
           <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
             <div className="flex items-center">
-              <span>{error}</span>
+              <span>{interconsultaQuery.error.message}</span>
             </div>
           </div>
         </div>
@@ -122,7 +132,7 @@ const RespuestaVirtual: FC = () => {
   }
 
   return (
-    <div className="min-h-screen text-black bg-gray-50">
+    <div ref={printRef} className="min-h-screen text-black bg-gray-50">
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-semibold mb-6">
           Respuesta Virtual a la Interconsulta
@@ -131,9 +141,9 @@ const RespuestaVirtual: FC = () => {
         <div className="bg-white p-6 rounded-lg shadow mb-6">
           <div className="flex items-center space-x-2 mb-4">
             <h2 className="text-xl font-semibold">
-              {interconsulta.paciente?.nombre || 'Nombre no disponible'}
+              {interconsulta?.paciente?.nombre || 'Nombre no disponible'}
             </h2>
-            {interconsulta.prioridad === 'ALTA' && (
+            {interconsulta?.prioridad === 'ALTA' && (
               <AlertTriangle className="h-5 w-5 text-red-500" />
             )}
           </div>
@@ -141,23 +151,23 @@ const RespuestaVirtual: FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <p className="text-gray-700">
               <span className="font-medium">HC:</span>{' '}
-              {interconsulta.paciente?.numeroHistoria || 'No disponible'}
+              {interconsulta?.paciente?.numeroHistoria || 'No disponible'}
             </p>
             <p className="text-gray-700">
               <span className="font-medium">De:</span>{' '}
-              {interconsulta.servicioSolicitante?.nombre || 'No especificado'}
+              {interconsulta?.servicioSolicitante?.nombre || 'No especificado'}
             </p>
             <p className="text-gray-700">
               <span className="font-medium">Para:</span>{' '}
-              {interconsulta.servicioDestino?.nombre || 'No especificado'}
+              {interconsulta?.servicioDestino?.nombre || 'No especificado'}
             </p>
             <p className="text-gray-700">
               <span className="font-medium">Prioridad:</span>{' '}
-              {interconsulta.prioridad || 'No especificada'}
+              {interconsulta?.prioridad || 'No especificada'}
             </p>
             <p className="text-gray-700">
               <span className="font-medium">Fecha:</span>{' '}
-              {formatFecha(interconsulta.fechaCreacion)}
+              {formatFecha(interconsulta?.fechaCreacion)}
             </p>
           </div>
 
@@ -167,15 +177,15 @@ const RespuestaVirtual: FC = () => {
                 Objetivo de la Consulta
               </h3>
               <p className="bg-gray-50 p-4 rounded-lg">
-                {interconsulta.objetivoConsulta || 'No especificado'}
+                {interconsulta?.objetivoConsulta || 'No especificado'}
               </p>
             </div>
 
-            {interconsulta.estadoClinico && (
+            {interconsulta?.estadoClinico && (
               <div>
                 <h3 className="text-lg font-semibold mb-2">Estado Clínico</h3>
                 <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
-                  {interconsulta.estadoClinico.signosVitales && (
+                  {interconsulta?.estadoClinico.signosVitales && (
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">
                         Signos Vitales
@@ -184,7 +194,7 @@ const RespuestaVirtual: FC = () => {
                         <p className="text-gray-700">
                           <span className="font-medium">Presión Arterial:</span>{' '}
                           {
-                            interconsulta.estadoClinico.signosVitales
+                            interconsulta?.estadoClinico.signosVitales
                               .presionArterial
                           }
                         </p>
@@ -193,7 +203,7 @@ const RespuestaVirtual: FC = () => {
                             Frecuencia Cardíaca:
                           </span>{' '}
                           {
-                            interconsulta.estadoClinico.signosVitales
+                            interconsulta?.estadoClinico.signosVitales
                               .frecuenciaCardiaca
                           }
                         </p>
@@ -202,21 +212,21 @@ const RespuestaVirtual: FC = () => {
                             Frecuencia Respiratoria:
                           </span>{' '}
                           {
-                            interconsulta.estadoClinico.signosVitales
+                            interconsulta?.estadoClinico.signosVitales
                               .frecuenciaRespiratoria
                           }
                         </p>
                         <p className="text-gray-700">
                           <span className="font-medium">Temperatura:</span>{' '}
                           {
-                            interconsulta.estadoClinico.signosVitales
+                            interconsulta?.estadoClinico.signosVitales
                               .temperatura
                           }
                         </p>
                         <p className="text-gray-700">
                           <span className="font-medium">Saturación O2:</span>{' '}
                           {
-                            interconsulta.estadoClinico.signosVitales
+                            interconsulta?.estadoClinico.signosVitales
                               .saturacionOxigeno
                           }
                         </p>
@@ -224,42 +234,63 @@ const RespuestaVirtual: FC = () => {
                     </div>
                   )}
 
-                  {interconsulta.estadoClinico.subjetivo && (
+                  {interconsulta?.estadoClinico.subjetivo && (
                     <div>
                       <h4 className="font-medium text-gray-900 mb-1">
                         Evaluación Subjetiva
                       </h4>
                       <p className="text-gray-700">
-                        {interconsulta.estadoClinico.subjetivo}
+                        {interconsulta?.estadoClinico.subjetivo}
                       </p>
                     </div>
                   )}
                 </div>
+                {respuestaInterconsultaQuery.data ? (
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-2">Respuesta</h3>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      {respuestaInterconsultaQuery.data.respuesta}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             )}
           </div>
-
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mt-6">
+              <div className="flex items-center">
+                <span>{'Esta interconsulta ya fue respondida'}</span>
+              </div>
+            </div>
+          )}
           {/* Área de respuesta */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">
-              Escribir Respuesta Virtual
-            </h2>
-            <textarea
-              className="w-full min-h-[200px] p-4 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              placeholder="Escriba su respuesta aquí..."
-              value={respuesta}
-              onChange={(e) => setRespuesta(e.target.value)}
-            />
-            <button
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              onClick={() => {
-                console.log('Respuesta:', respuesta)
-                // Aquí irá la lógica para enviar la respuesta
-              }}
-            >
-              Enviar Respuesta
-            </button>
-          </div>
+          {!respuestaInterconsultaQuery.data ? (
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-xl font-semibold mb-4">
+                Escribir Respuesta Virtual
+              </h2>
+              <textarea
+                className="w-full min-h-[200px] p-4 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                placeholder="Escriba su respuesta aquí..."
+                value={respuesta}
+                onChange={(e) => setRespuesta(e.target.value)}
+              />
+              <button
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                onClick={() => handleSubmit()}
+              >
+                Enviar Respuesta
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6 flex w-full print:hidden">
+              <Button
+                text="Imprimir respuesta"
+                icon={<Printer />}
+                onClick={() => reactToPrintFn()}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

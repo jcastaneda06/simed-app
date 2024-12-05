@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react'
 
 type ButtonProps = {
-  variant?: 'primary' | 'secondary'
+  variant?: 'primary' | 'secondary' | 'danger'
   onClick?: () => void
   text: string
   icon: ReactNode
@@ -16,6 +16,8 @@ const Button: FC<ButtonProps> = (props) => {
         return 'bg-blue-500 hover:bg-blue-600 text-white'
       case 'secondary':
         return 'bg-gray-500 hover:bg-gray-600'
+      case 'danger':
+        return 'bg-red-500 hover:bg-red-600 text-white'
       default:
         return 'bg-blue-500 hover:bg-blue-600 text-white'
     }

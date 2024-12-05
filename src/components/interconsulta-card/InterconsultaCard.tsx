@@ -9,11 +9,14 @@ import {
   ChevronDown,
   MessageSquare,
   Eye,
+  Trash2,
 } from 'lucide-react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
 import { Button } from '../button/Button'
+import ConfirmDialog from '../confirm-dialog/ConfirmDialog'
+const jwt = require('jsonwebtoken')
 
 type InterconsultaCardProps = {
   interconsulta: Interconsulta
@@ -33,15 +36,14 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   error,
 }) => {
   const { apiUrl, token } = useConfig()
-  const { updateInterconsultaState } = interconsultaEndpoints(
-    apiUrl || '',
-    token || ''
-  )
-  const { getRespuestaByInterconsultaId } = interconsultaEndpoints(
-    apiUrl || '',
-    token || ''
-  )
+  const decoded = jwt.decode(token)
+  const {
+    getRespuestaByInterconsultaId,
+    updateInterconsultaState,
+    deleteInterconsulta,
+  } = interconsultaEndpoints(apiUrl || '', token || '')
   const [expanded, setExpanded] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false)
   const router = useRouter()
 
   const respuestaQuery = useQuery<RespuestaInterconsulta>({
@@ -57,6 +59,11 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     mutationKey: ['updateIntercunsultaState', interconsulta._id],
     mutationFn: (payload: { estado: string }) =>
       updateInterconsultaState(interconsulta._id || '', payload.estado),
+  })
+
+  const deleteInterconsultaMutation = useMutation<any, Error, any>({
+    mutationKey: ['deleteInterconsulta'],
+    mutationFn: (id: string) => deleteInterconsulta(id),
   })
 
   const formatSignoVitalLabel = (key: string) => {
@@ -91,6 +98,18 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
 
     if (response.estado === newStatus) {
       onStatusChange()
+    }
+  }
+
+  const handleDeleteInterconsulta = async () => {
+    if (deleteInterconsultaMutation.isPending) return
+
+    const response = await deleteInterconsultaMutation.mutateAsync(
+      interconsulta._id
+    )
+
+    if (response.ok) {
+      router.reload()
     }
   }
 
@@ -221,18 +240,36 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
             <div className="grid gap-6">
               {/* Buttons section - only show for EN_PROCESO status */}
               {respuestaQuery.data?.respuesta ? (
-                <Button
-                  text="Ver respuesta"
-                  icon={<Eye className="h-4 w-4" />}
-                  onClick={() =>
-                    router.push(`/interconsulta/${interconsulta._id}`)
-                  }
-                />
+                <div className="flex justify-end space-x-4">
+                  {decoded?.role === 'ADMIN' && (
+                    <Button
+                      text="Borrar interconsulta"
+                      variant="danger"
+                      icon={<Trash2 className="h-4 w-4" />}
+                      onClick={() => setOpenDialog(true)}
+                    />
+                  )}
+                  <Button
+                    text="Ver respuesta"
+                    icon={<Eye className="h-4 w-4" />}
+                    onClick={() =>
+                      router.push(`/interconsulta/${interconsulta._id}`)
+                    }
+                  />
+                </div>
               ) : (
                 <>
-                  {interconsulta.estado === 'EN_PROCESO' && (
+                  {interconsulta.estado === 'EN_PROCESO' ? (
                     <div className="border-b border-gray-100 pb-4">
                       <div className="flex justify-end space-x-4">
+                        {decoded?.role === 'ADMIN' && (
+                          <Button
+                            text="Borrar interconsulta"
+                            variant="danger"
+                            icon={<Trash2 className="h-4 w-4" />}
+                            onClick={() => setOpenDialog(true)}
+                          />
+                        )}
                         <button
                           type="button"
                           className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
@@ -251,7 +288,14 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                         </button>
                       </div>
                     </div>
-                  )}
+                  ) : decoded?.role === 'ADMIN' ? (
+                    <Button
+                      text="Borrar interconsulta"
+                      variant="danger"
+                      icon={<Trash2 className="h-4 w-4" />}
+                      onClick={() => setOpenDialog(true)}
+                    />
+                  ) : null}
                 </>
               )}
 
@@ -365,6 +409,13 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
           </div>
         )}
       </div>
+      <ConfirmDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onConfirm={() => handleDeleteInterconsulta()}
+        title="Borrar interconsulta"
+        action="borrar la interconsulta"
+      />
     </div>
   )
 }

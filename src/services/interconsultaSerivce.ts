@@ -139,4 +139,3 @@ export const searchInterconsultasByHistoryNumber = async (
 export const deleteInterconsulta = async (id: string) => {
   return Interconsulta.findByIdAndDelete(id)
 }
-

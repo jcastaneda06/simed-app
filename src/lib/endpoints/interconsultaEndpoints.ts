@@ -62,6 +62,15 @@ const interconsultaEndpoints = (apiUrl: string, token: string) => {
     return result.json()
   }
 
+  async function deleteInterconsulta(id: string) {
+    const result = await fetch(`${apiUrl}/interconsultas/${id}`, {
+      method: 'DELETE',
+      headers: headers,
+    })
+
+    return result.json()
+  }
+
   return {
     getInterconsultas,
     addInterconsulta,
@@ -69,6 +78,7 @@ const interconsultaEndpoints = (apiUrl: string, token: string) => {
     getInterconsultaById,
     getRespuestaByInterconsultaId,
     responderInterconsulta,
+    deleteInterconsulta,
   }
 }
 

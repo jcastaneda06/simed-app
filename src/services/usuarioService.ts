@@ -14,13 +14,18 @@ const loginUsuario = async (email: string, password: string) => {
   }
 
   const passwordValido = await usuario.compararPassword(password)
+  console.log('passwordValido', passwordValido)
   if (!passwordValido) {
     throw new Error('Credenciales inválidas')
   }
 
-  const token = jwt.sign({ id: usuario._id }, process.env.JWT_SECRET!, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
-  })
+  const token = jwt.sign(
+    { id: usuario._id, role: usuario.rol },
+    process.env.JWT_SECRET!,
+    {
+      expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+    }
+  )
 
   return {
     token,
@@ -29,7 +34,6 @@ const loginUsuario = async (email: string, password: string) => {
       nombre: usuario.nombre,
       email: usuario.email,
       servicio: usuario.servicio,
-      rol: usuario.rol,
     },
   }
 }

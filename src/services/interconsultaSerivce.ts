@@ -135,3 +135,7 @@ export const searchInterconsultasByHistoryNumber = async (
     .populate('servicioDestino', 'nombre')
     .sort({ fechaCreacion: -1 })
 }
+
+export const deleteInterconsulta = async (id: string) => {
+  return Interconsulta.findByIdAndDelete(id)
+}

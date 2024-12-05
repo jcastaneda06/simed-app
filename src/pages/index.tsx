@@ -18,9 +18,11 @@ import CollapsibleSection from '@/components/collapsible-section/CollapsibleSect
 import { useConfig } from '@/config/ConfigProvider'
 import { useRouter } from 'next/router'
 import Spinner from '@/components/spinner/Spinner'
+const jwt = require('jsonwebtoken')
 
 const Home: FC = () => {
   const { user, apiUrl, token } = useConfig()
+  const decoded = jwt.decode(token)
   const { getServicios } = servicioEndpoints(apiUrl || '', token || '')
   const router = useRouter()
   const { getInterconsultas } = interconsultaEndpoints(
@@ -36,7 +38,7 @@ const Home: FC = () => {
   const serviciosQuery = useQuery<Servicio[]>({
     queryKey: ['getServicios', user],
     queryFn: () => getServicios(),
-    enabled: user?.rol === 'ADMIN',
+    enabled: decoded?.role === 'ADMIN',
   })
 
   const interconsultasEnviadasQuery = useQuery<Interconsulta[]>({
@@ -106,7 +108,7 @@ const Home: FC = () => {
   return (
     <div className="min-h-screen text-black bg-gray-50">
       <div className="container mx-auto p-4">
-        <div className="mb-6 flex flex-wrap gap-4 relative z-50">
+        <div className="mb-6 flex flex-wrap gap-4 relative">
           <Select
             value={filtros.estado}
             onValueChange={(value) =>
@@ -199,7 +201,7 @@ const Home: FC = () => {
             </SelectContent>
           </Select>
 
-          {user?.rol === 'ADMIN' && (
+          {decoded?.role === 'ADMIN' && (
             <Select
               value={filtros.servicio}
               onValueChange={(value) =>

@@ -230,7 +230,7 @@ const Home: FC = () => {
                     value={servicio._id}
                     className="text-gray-900 hover:bg-gray-100 bg-white"
                   >
-                    {/* {servicio.nombre} */}
+                    {servicio.nombre}
                   </SelectItem>
                 ))}
               </SelectContent>

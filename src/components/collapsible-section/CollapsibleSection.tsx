@@ -14,7 +14,7 @@ const CollapsibleSection: FC<PropsWithChildren<CollapsibleSectionProps>> = ({
   const [isExpanded, setIsExpanded] = useState(true)
 
   return (
-    <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-100">
+    <div className="bg-white md:rounded-lg md:shadow-sm md:border border-gray-100">
       <button
         className="w-full px-4 py-3 flex justify-between items-center"
         onClick={() => setIsExpanded(!isExpanded)}

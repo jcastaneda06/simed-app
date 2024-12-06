@@ -16,6 +16,8 @@ import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
 import { Button } from '../button/Button'
 import ConfirmDialog from '../confirm-dialog/ConfirmDialog'
+import Spinner from '../spinner/Spinner'
+import { Tooltip } from 'react-tooltip'
 const jwt = require('jsonwebtoken')
 
 type InterconsultaCardProps = {
@@ -125,11 +127,29 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   const getPriorityIcon = (prioridad: string) => {
     switch (prioridad) {
       case 'ALTA':
-        return <AlertTriangle className="h-5 w-5 text-red-500" />
+        return (
+          <AlertTriangle
+            data-tooltip-id={prioridad}
+            data-tooltip-content="Prioridad alta"
+            className="h-5 w-5 text-red-500"
+          />
+        )
       case 'MEDIA':
-        return <Clock className="h-5 w-5 text-yellow-500" />
+        return (
+          <Clock
+            data-tooltip-id={prioridad}
+            data-tooltip-content="Prioridad media"
+            className="h-5 w-5 text-yellow-500"
+          />
+        )
       case 'BAJA':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />
+        return (
+          <CheckCircle2
+            data-tooltip-id={prioridad}
+            data-tooltip-content="Prioridad baja"
+            className="h-5 w-5 text-green-500"
+          />
+        )
       default:
         return null
     }
@@ -167,7 +187,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto p-4">
-          <div className="text-center py-6">Cargando interconsultas...</div>
+          <Spinner />
         </div>
       </div>
     )
@@ -197,11 +217,12 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
         >
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2 ">
                 <h2 className="text-black font-semibold">
                   {interconsulta.paciente?.nombre}
                 </h2>
                 {getPriorityIcon(interconsulta.prioridad)}
+                <Tooltip id={interconsulta.prioridad} />
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-gray-800">

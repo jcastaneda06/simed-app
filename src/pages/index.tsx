@@ -107,7 +107,7 @@ const Home: FC = () => {
 
   return (
     <div className="min-h-screen text-black bg-gray-50">
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-0 md:p-4">
         <div className="mb-6 flex flex-wrap gap-4 relative">
           <Select
             value={filtros.estado}
@@ -238,7 +238,7 @@ const Home: FC = () => {
           )}
         </div>
 
-        <div className="relative z-0 space-y-6">
+        <div className="flex flex-col gap-0 md:gap-6">
           <CollapsibleSection
             title="Interconsultas Enviadas"
             count={interconsultasEnviadasQuery.data?.length || 0}

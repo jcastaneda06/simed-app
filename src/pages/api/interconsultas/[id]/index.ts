@@ -30,10 +30,11 @@ export default async function handler(
 
     const result = await deleteInterconsulta(id)
     if (!result) {
-      return res
-        .status(404)
-        .json({ message: 'Interconsulta no encontrada', ok: true })
+      return res.status(404).json({ message: 'Interconsulta no encontrada' })
     }
-    return res.status(200).json(result)
+
+    return res
+      .status(200)
+      .json({ message: 'Interconsulta eliminada', ok: true })
   }
 }

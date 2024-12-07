@@ -205,7 +205,8 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
         >
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
-              <div className="flex items-center justify-between gap-2 w-36">
+              <div className="flex items-center justify-start gap-2 w-36 sm:w-40">
+                {getPriorityIcon(interconsulta.prioridad)}
                 <h2
                   data-tooltip-id={interconsulta.paciente.nombre}
                   data-tooltip-content={interconsulta.paciente.nombre}
@@ -213,7 +214,6 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                 >
                   {interconsulta.paciente?.nombre}
                 </h2>
-                {getPriorityIcon(interconsulta.prioridad)}
                 <Tooltip id={interconsulta.prioridad} />
                 <Tooltip id={interconsulta.paciente.nombre} />
               </div>
@@ -251,14 +251,14 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
 
         {expanded && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="max-w-full overflow-x-scroll">
+            <div className="w-full pb-4">
               {respuestaQuery.data?.respuesta ? (
-                <div className="flex justify-end gap-4">
+                <div className="flex flex-col-reverse md:flex-row justify-end gap-4">
                   {decoded?.role === 'ADMIN' && (
                     <Button
                       text="Borrar interconsulta"
                       variant="danger"
-                      style="flex-1"
+                      style="flex-1 md:flex-initial"
                       icon={<Trash2 className="h-4 w-4" />}
                       onClick={() => setOpenDialog(true)}
                     />
@@ -266,7 +266,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                   <Button
                     text="Ver respuesta"
                     icon={<Eye className="h-4 w-4" />}
-                    style="flex-1"
+                    style="flex-1 md:flex-initial"
                     onClick={() =>
                       router.push(`/interconsulta/${interconsulta._id}`)
                     }
@@ -275,45 +275,46 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
               ) : (
                 <>
                   {interconsulta.estado === 'EN_PROCESO' ? (
-                    <div className="border-b border-gray-100 pb-4 max-w-full">
-                      <div className="flex flex-1 justify-end gap-4">
-                        {decoded?.role === 'ADMIN' && (
-                          <Button
-                            text="Borrar interconsulta"
-                            variant="danger"
-                            style="flex-1"
-                            icon={<Trash2 className="h-4 w-4" />}
-                            onClick={() => setOpenDialog(true)}
-                          />
-                        )}
+                    <div className="border-b border-gray-100 pb-4 flex flex-col-reverse md:flex-row justify-end gap-2">
+                      {decoded?.role === 'ADMIN' && (
                         <Button
-                          text="Respuesta Física"
-                          variant="secondary"
-                          style="flex-1"
-                          icon={<CheckCircle2 className="h-4 w-4" />}
-                          onClick={(e: any) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            console.log('Respuesta Física clickeada')
-                          }}
+                          text="Borrar interconsulta"
+                          variant="danger"
+                          style="flex-1 md:flex-initial"
+                          icon={<Trash2 className="h-4 w-4" />}
+                          onClick={() => setOpenDialog(true)}
                         />
-                        <Button
-                          text="Respuesta Virtual"
-                          style="flex-1"
-                          icon={<MessageSquare className="h-4 w-4" />}
-                          onClick={() =>
-                            router.push(`/interconsulta/${interconsulta._id}`)
-                          }
-                        />
-                      </div>
+                      )}
+                      <Button
+                        text="Respuesta Física"
+                        variant="secondary"
+                        style="flex-1 md:flex-initial"
+                        icon={<CheckCircle2 className="h-4 w-4" />}
+                        onClick={(e: any) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          console.log('Respuesta Física clickeada')
+                        }}
+                      />
+                      <Button
+                        text="Respuesta Virtual"
+                        style="flex-1 md:flex-initial"
+                        icon={<MessageSquare className="h-4 w-4" />}
+                        onClick={() =>
+                          router.push(`/interconsulta/${interconsulta._id}`)
+                        }
+                      />
                     </div>
                   ) : decoded?.role === 'ADMIN' ? (
-                    <Button
-                      text="Borrar interconsulta"
-                      variant="danger"
-                      icon={<Trash2 className="h-4 w-4" />}
-                      onClick={() => setOpenDialog(true)}
-                    />
+                    <div className="flex justify-end">
+                      <Button
+                        text="Borrar interconsulta"
+                        variant="danger"
+                        style="flex-1 md:flex-initial"
+                        icon={<Trash2 className="h-4 w-4" />}
+                        onClick={() => setOpenDialog(true)}
+                      />
+                    </div>
                   ) : null}
                 </>
               )}

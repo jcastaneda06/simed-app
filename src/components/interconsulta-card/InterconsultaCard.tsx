@@ -37,7 +37,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   loading,
   error,
 }) => {
-  const { apiUrl, token } = useConfig()
+  const { apiUrl, token, user } = useConfig()
   const decoded = jwt.decode(token)
   const {
     getRespuestaByInterconsultaId,
@@ -204,13 +204,18 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 ">
-                <h2 className="text-black font-semibold">
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between gap-2 w-36">
+                <h2
+                  data-tooltip-id={interconsulta.paciente.nombre}
+                  data-tooltip-content={interconsulta.paciente.nombre}
+                  className="text-black font-semibold truncate"
+                >
                   {interconsulta.paciente?.nombre}
                 </h2>
                 {getPriorityIcon(interconsulta.prioridad)}
                 <Tooltip id={interconsulta.prioridad} />
+                <Tooltip id={interconsulta.paciente.nombre} />
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-gray-800">
@@ -232,7 +237,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
               >
                 {interconsulta.estado}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 text-end">
                 {formatFecha(interconsulta.fechaCreacion || '')}
               </span>
               {expanded ? (

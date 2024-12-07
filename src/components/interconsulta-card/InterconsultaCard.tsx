@@ -79,18 +79,6 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     return labels[key] || key
   }
 
-  const handleRespuestaVirtual = (e: any) => {
-    e.preventDefault()
-    e.stopPropagation()
-    router.push(`/interconsulta/${interconsulta._id}`)
-  }
-
-  const handleRespuestaFisica = (e: any) => {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log('Respuesta Física clickeada')
-  }
-
   const handleStatusChange = async (newStatus: string) => {
     if (interconsultaStateMutation.isPending) return
 
@@ -209,7 +197,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+    <div className="flex flex-col gap-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
       <div className="p-4">
         <div
           className="cursor-pointer select-none"
@@ -258,14 +246,14 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
 
         {expanded && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="grid gap-6">
-              {/* Buttons section - only show for EN_PROCESO status */}
+            <div className="max-w-full overflow-x-scroll">
               {respuestaQuery.data?.respuesta ? (
-                <div className="flex justify-end space-x-4">
+                <div className="flex justify-end gap-4">
                   {decoded?.role === 'ADMIN' && (
                     <Button
                       text="Borrar interconsulta"
                       variant="danger"
+                      style="flex-1"
                       icon={<Trash2 className="h-4 w-4" />}
                       onClick={() => setOpenDialog(true)}
                     />
@@ -273,6 +261,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                   <Button
                     text="Ver respuesta"
                     icon={<Eye className="h-4 w-4" />}
+                    style="flex-1"
                     onClick={() =>
                       router.push(`/interconsulta/${interconsulta._id}`)
                     }
@@ -281,32 +270,36 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
               ) : (
                 <>
                   {interconsulta.estado === 'EN_PROCESO' ? (
-                    <div className="border-b border-gray-100 pb-4">
-                      <div className="flex justify-end space-x-4">
+                    <div className="border-b border-gray-100 pb-4 max-w-full">
+                      <div className="flex flex-1 justify-end gap-4">
                         {decoded?.role === 'ADMIN' && (
                           <Button
                             text="Borrar interconsulta"
                             variant="danger"
+                            style="flex-1"
                             icon={<Trash2 className="h-4 w-4" />}
                             onClick={() => setOpenDialog(true)}
                           />
                         )}
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                          onClick={handleRespuestaFisica}
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          Respuesta Física
-                        </button>
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                          onClick={handleRespuestaVirtual}
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          Respuesta Virtual
-                        </button>
+                        <Button
+                          text="Respuesta Física"
+                          variant="secondary"
+                          style="flex-1"
+                          icon={<CheckCircle2 className="h-4 w-4" />}
+                          onClick={(e: any) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            console.log('Respuesta Física clickeada')
+                          }}
+                        />
+                        <Button
+                          text="Respuesta Virtual"
+                          style="flex-1"
+                          icon={<MessageSquare className="h-4 w-4" />}
+                          onClick={() =>
+                            router.push(`/interconsulta/${interconsulta._id}`)
+                          }
+                        />
                       </div>
                     </div>
                   ) : decoded?.role === 'ADMIN' ? (
@@ -319,7 +312,8 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                   ) : null}
                 </>
               )}
-
+            </div>
+            <div className="grid gap-6">
               <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <div className="space-y-1">
                   <h3 className="text-sm font-semibold text-gray-900">

@@ -1,12 +1,6 @@
 import { useState, useEffect, FC } from 'react'
-import { AlertTriangle } from 'lucide-react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/select/Select'
+import { Activity, AlertTriangle, FileCheck, HeartPulse } from 'lucide-react'
+import { Select, SelectItem } from '@/components/select/Select'
 import { Usuario } from '@/types/Usuario'
 import { Interconsulta } from '@/types/Interconsulta'
 import { Servicio } from '@/types/Servicio'
@@ -16,7 +10,6 @@ import servicioEndpoints from '@/lib/endpoints/servicioEndpoints'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import CollapsibleSection from '@/components/collapsible-section/CollapsibleSection'
 import { useConfig } from '@/config/ConfigProvider'
-import { useRouter } from 'next/router'
 import Spinner from '@/components/spinner/Spinner'
 const jwt = require('jsonwebtoken')
 
@@ -24,15 +17,14 @@ const Home: FC = () => {
   const { user, apiUrl, token } = useConfig()
   const decoded = jwt.decode(token)
   const { getServicios } = servicioEndpoints(apiUrl || '', token || '')
-  const router = useRouter()
   const { getInterconsultas } = interconsultaEndpoints(
     apiUrl || '',
     token || ''
   )
-  const [filtros, setFiltros] = useState<{ [key: string]: string }>({
+  const [filtros, setFiltros] = useState({
     estado: '',
     prioridad: '',
-    idServicio: user?.servicio || '',
+    idServicio: '',
   })
 
   const serviciosQuery = useQuery<Servicio[]>({
@@ -45,36 +37,41 @@ const Home: FC = () => {
     queryKey: ['getInterconsultasEnviadas', filtros, user],
     queryFn: () => {
       let query = Object.keys(filtros)
-        .map((key) => `${key}=${filtros[key]}`)
+        .map((key) => `${key}=${filtros[key as keyof typeof filtros]}`)
         .join('&')
 
       query += '&filterBy=enviadas'
       return getInterconsultas(query)
     },
-    enabled: !!user?.servicio && !!filtros.idServicio,
   })
 
   const interconsultasRecibidasQuery = useQuery<Interconsulta[]>({
     queryKey: ['getInterconsultasRecibidas', filtros, user],
     queryFn: () => {
       let query = Object.keys(filtros)
-        .map((key) => `${key}=${filtros[key]}`)
+        .map((key) => `${key}=${filtros[key as keyof typeof filtros]}`)
         .join('&')
 
       query += '&filterBy=recibidas'
       return getInterconsultas(query)
     },
-    enabled: !!user?.servicio,
   })
 
   useEffect(() => {
-    if (user) {
+    if (user && decoded?.role !== 'ADMIN') {
       setFiltros((prev) => ({
         ...prev,
         idServicio: user.servicio,
       }))
     }
   }, [user])
+
+  const handleSetFilters = (key: string, value: string) => {
+    setFiltros((prev) => ({
+      ...prev,
+      [key]: value === 'todos' ? '' : value,
+    }))
+  }
 
   if (
     interconsultasEnviadasQuery.isLoading ||
@@ -108,134 +105,65 @@ const Home: FC = () => {
   return (
     <div className="min-h-screen text-black bg-gray-50">
       <div className="container mx-auto p-0 md:p-4">
-        <div className="mb-6 flex flex-wrap gap-4 relative">
-          <Select
-            value={filtros.estado}
-            onValueChange={(value) =>
-              setFiltros((prev) => ({
-                ...prev,
-                estado: value === 'todos' ? '' : value,
-              }))
-            }
-          >
-            <SelectTrigger className="w-[200px] bg-white border-gray-200">
-              <SelectValue placeholder="Estado" />
-            </SelectTrigger>
-            <SelectContent
-              className="bg-white border border-gray-200 shadow-lg"
-              style={{ backgroundColor: 'white' }}
-            >
-              <SelectItem
-                value="todos"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Mostrar Todo
-              </SelectItem>
-              <SelectItem
-                value="PENDIENTE"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Pendiente
-              </SelectItem>
-              <SelectItem
-                value="EN_PROCESO"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                En Proceso
-              </SelectItem>
-              <SelectItem
-                value="COMPLETADA"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Completada
-              </SelectItem>
-              <SelectItem
-                value="CANCELADA"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Cancelada
-              </SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={filtros.prioridad}
-            onValueChange={(value) =>
-              setFiltros((prev) => ({
-                ...prev,
-                prioridad: value === 'todos' ? '' : value,
-              }))
-            }
-          >
-            <SelectTrigger className="w-[200px] bg-white border-gray-200">
-              <SelectValue placeholder="Prioridad" />
-            </SelectTrigger>
-            <SelectContent
-              className="bg-white border border-gray-200 shadow-lg"
-              style={{ backgroundColor: 'white' }}
-            >
-              <SelectItem
-                value="todos"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Mostrar Todo
-              </SelectItem>
-              <SelectItem
-                value="ALTA"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Alta
-              </SelectItem>
-              <SelectItem
-                value="MEDIA"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Media
-              </SelectItem>
-              <SelectItem
-                value="BAJA"
-                className="text-gray-900 hover:bg-gray-100 bg-white"
-              >
-                Baja
-              </SelectItem>
-            </SelectContent>
-          </Select>
-
-          {decoded?.role === 'ADMIN' && (
+        <div className="mb-6 flex gap-4 mx-4 md:mx-0">
+          <div className="flex-1 flex flex-col">
+            <div className="flex justify-start items-center gap-2">
+              <FileCheck className="w-4 h-4 text-gray-500" />{' '}
+              <span className="text-gray-500 text-sm">Estado</span>
+            </div>
             <Select
-              value={filtros.servicio}
-              onValueChange={(value) =>
-                setFiltros((prev) => ({
-                  ...prev,
-                  servicio: value === 'todos' ? '' : value,
-                }))
-              }
+              value={filtros.estado}
+              onChange={(e) => handleSetFilters('estado', e.target.value)}
             >
-              <SelectTrigger className="w-[200px] bg-white border-gray-200">
-                <SelectValue placeholder="Servicio" />
-              </SelectTrigger>
-              <SelectContent
-                className="bg-white border border-gray-200 shadow-lg"
-                style={{ backgroundColor: 'white' }}
+              <SelectItem value="todos" selected={filtros.estado === ''}>
+                Todos
+              </SelectItem>
+              <SelectItem value="PENDIENTE">Pendientes</SelectItem>
+              <SelectItem value="EN_PROCESO">En proceso</SelectItem>
+              <SelectItem value="COMPLETADA">Completadas</SelectItem>
+              <SelectItem value="CANCELADA">Canceladas</SelectItem>
+            </Select>
+          </div>
+
+          <div className="flex-1 flex flex-col">
+            <div className="flex justify-start items-center gap-2">
+              <Activity className="w-4 h-4 text-gray-500" />{' '}
+              <span className="text-gray-500 text-sm">Prioridad</span>
+            </div>
+            <Select
+              value={filtros.prioridad}
+              onChange={(e) => handleSetFilters('prioridad', e.target.value)}
+            >
+              <SelectItem value="todos" selected={filtros.prioridad === ''}>
+                Todas
+              </SelectItem>
+              <SelectItem value="BAJA">Baja</SelectItem>
+              <SelectItem value="MEDIA">Media</SelectItem>
+              <SelectItem value="ALTA">Alta</SelectItem>
+            </Select>
+          </div>
+
+          <div className="flex-1 flex flex-col">
+            <div className="flex justify-start items-center gap-2">
+              <HeartPulse className="w-4 h-4 text-gray-500" />{' '}
+              <span className="text-gray-500 text-sm">Servicio</span>
+            </div>
+            {decoded?.role === 'ADMIN' && (
+              <Select
+                value={filtros.idServicio}
+                onChange={(e) => handleSetFilters('idServicio', e.target.value)}
               >
-                <SelectItem
-                  value="todos"
-                  className="text-gray-900 hover:bg-gray-100 bg-white"
-                >
-                  Mostrar Todo
+                <SelectItem value="todos" selected={filtros.idServicio === ''}>
+                  Todos
                 </SelectItem>
                 {serviciosQuery.data?.map((servicio) => (
-                  <SelectItem
-                    key={servicio._id}
-                    value={servicio._id}
-                    className="text-gray-900 hover:bg-gray-100 bg-white"
-                  >
+                  <SelectItem key={servicio._id} value={servicio._id}>
                     {servicio.nombre}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          )}
+              </Select>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col gap-0 md:gap-6">

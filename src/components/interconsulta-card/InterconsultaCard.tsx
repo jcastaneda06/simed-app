@@ -37,7 +37,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   loading,
   error,
 }) => {
-  const { apiUrl, token } = useConfig()
+  const { apiUrl, token, user } = useConfig()
   const decoded = jwt.decode(token)
   const {
     getRespuestaByInterconsultaId,
@@ -77,18 +77,6 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
       saturacionOxigeno: 'Saturación de Oxígeno',
     }
     return labels[key] || key
-  }
-
-  const handleRespuestaVirtual = (e: any) => {
-    e.preventDefault()
-    e.stopPropagation()
-    router.push(`/interconsulta/${interconsulta._id}`)
-  }
-
-  const handleRespuestaFisica = (e: any) => {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log('Respuesta Física clickeada')
   }
 
   const handleStatusChange = async (newStatus: string) => {
@@ -209,20 +197,25 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+    <div className="flex flex-col gap-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
       <div className="p-4">
         <div
           className="cursor-pointer select-none"
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 ">
-                <h2 className="text-black font-semibold">
+            <div className="flex flex-col">
+              <div className="flex items-center justify-start gap-2 w-36 sm:w-40">
+                {getPriorityIcon(interconsulta.prioridad)}
+                <h2
+                  data-tooltip-id={interconsulta.paciente.nombre}
+                  data-tooltip-content={interconsulta.paciente.nombre}
+                  className="text-black font-semibold truncate"
+                >
                   {interconsulta.paciente?.nombre}
                 </h2>
-                {getPriorityIcon(interconsulta.prioridad)}
                 <Tooltip id={interconsulta.prioridad} />
+                <Tooltip id={interconsulta.paciente.nombre} />
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-gray-800">
@@ -244,7 +237,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
               >
                 {interconsulta.estado}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 text-end">
                 {formatFecha(interconsulta.fechaCreacion || '')}
               </span>
               {expanded ? (
@@ -258,14 +251,14 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
 
         {expanded && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="grid gap-6">
-              {/* Buttons section - only show for EN_PROCESO status */}
+            <div className="w-full pb-4">
               {respuestaQuery.data?.respuesta ? (
-                <div className="flex justify-end space-x-4">
+                <div className="flex flex-col-reverse md:flex-row justify-end gap-4">
                   {decoded?.role === 'ADMIN' && (
                     <Button
                       text="Borrar interconsulta"
                       variant="danger"
+                      style="flex-1 md:flex-initial"
                       icon={<Trash2 className="h-4 w-4" />}
                       onClick={() => setOpenDialog(true)}
                     />
@@ -273,6 +266,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                   <Button
                     text="Ver respuesta"
                     icon={<Eye className="h-4 w-4" />}
+                    style="flex-1 md:flex-initial"
                     onClick={() =>
                       router.push(`/interconsulta/${interconsulta._id}`)
                     }
@@ -281,45 +275,51 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
               ) : (
                 <>
                   {interconsulta.estado === 'EN_PROCESO' ? (
-                    <div className="border-b border-gray-100 pb-4">
-                      <div className="flex justify-end space-x-4">
-                        {decoded?.role === 'ADMIN' && (
-                          <Button
-                            text="Borrar interconsulta"
-                            variant="danger"
-                            icon={<Trash2 className="h-4 w-4" />}
-                            onClick={() => setOpenDialog(true)}
-                          />
-                        )}
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                          onClick={handleRespuestaFisica}
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          Respuesta Física
-                        </button>
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                          onClick={handleRespuestaVirtual}
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          Respuesta Virtual
-                        </button>
-                      </div>
+                    <div className="border-b border-gray-100 pb-4 flex flex-col-reverse md:flex-row justify-end gap-2">
+                      {decoded?.role === 'ADMIN' && (
+                        <Button
+                          text="Borrar interconsulta"
+                          variant="danger"
+                          style="flex-1 md:flex-initial"
+                          icon={<Trash2 className="h-4 w-4" />}
+                          onClick={() => setOpenDialog(true)}
+                        />
+                      )}
+                      <Button
+                        text="Respuesta Física"
+                        variant="secondary"
+                        style="flex-1 md:flex-initial"
+                        icon={<CheckCircle2 className="h-4 w-4" />}
+                        onClick={(e: any) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          console.log('Respuesta Física clickeada')
+                        }}
+                      />
+                      <Button
+                        text="Respuesta Virtual"
+                        style="flex-1 md:flex-initial"
+                        icon={<MessageSquare className="h-4 w-4" />}
+                        onClick={() =>
+                          router.push(`/interconsulta/${interconsulta._id}`)
+                        }
+                      />
                     </div>
                   ) : decoded?.role === 'ADMIN' ? (
-                    <Button
-                      text="Borrar interconsulta"
-                      variant="danger"
-                      icon={<Trash2 className="h-4 w-4" />}
-                      onClick={() => setOpenDialog(true)}
-                    />
+                    <div className="flex justify-end">
+                      <Button
+                        text="Borrar interconsulta"
+                        variant="danger"
+                        style="flex-1 md:flex-initial"
+                        icon={<Trash2 className="h-4 w-4" />}
+                        onClick={() => setOpenDialog(true)}
+                      />
+                    </div>
                   ) : null}
                 </>
               )}
-
+            </div>
+            <div className="grid gap-6">
               <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <div className="space-y-1">
                   <h3 className="text-sm font-semibold text-gray-900">

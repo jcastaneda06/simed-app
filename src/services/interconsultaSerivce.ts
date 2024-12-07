@@ -20,8 +20,10 @@ console.log(Servicio.db.model('Servicio', Servicio.schema))
 export const getInterconsultas = async (fields: InterconsultaDto) => {
   await connectToDatabase()
   if (fields.filterBy === 'recibidas') {
-    let query: InterconsultaQuery = {
-      servicioDestino: { $eq: fields.servicio },
+    let query: InterconsultaQuery = {}
+
+    if (fields.servicio !== '') {
+      query = { ...query, servicioDestino: { $eq: fields.servicio } }
     }
 
     if (fields.estado) {
@@ -41,8 +43,10 @@ export const getInterconsultas = async (fields: InterconsultaDto) => {
   }
 
   if (fields.filterBy === 'enviadas') {
-    let query: InterconsultaQuery = {
-      servicioSolicitante: { $eq: fields.servicio },
+    let query: InterconsultaQuery = {}
+
+    if (fields.servicio !== '') {
+      query = { ...query, servicioSolicitante: { $eq: fields.servicio } }
     }
 
     if (fields.estado) {

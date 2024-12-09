@@ -18,6 +18,7 @@ import { Button } from '../button/Button'
 import ConfirmDialog from '../confirm-dialog/ConfirmDialog'
 import Spinner from '../spinner/Spinner'
 import { Tooltip } from 'react-tooltip'
+import { useEdgeStore } from '@/lib/edgestore'
 const jwt = require('jsonwebtoken')
 
 type InterconsultaCardProps = {

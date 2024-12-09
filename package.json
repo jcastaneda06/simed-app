@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@edgestore/react": "^0.2.2",
+    "@edgestore/server": "^0.2.2",
     "@jridgewell/gen-mapping": "^0.3.5",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-select": "^2.1.2",
@@ -31,7 +33,8 @@
     "react-to-print": "^3.0.2",
     "react-tooltip": "^5.28.0",
     "shadcn": "^1.0.0",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@shadcn/ui": "^0.0.4",

@@ -71,6 +71,14 @@ const interconsultaEndpoints = (apiUrl: string, token: string) => {
     return result.json()
   }
 
+  async function getInterconsultaFile(interconsultaId: string) {
+    const result = await fetch(`${apiUrl}/edgestore/${interconsultaId}/file`, {
+      headers: headers,
+    })
+
+    return result.json()
+  }
+
   return {
     getInterconsultas,
     addInterconsulta,
@@ -79,6 +87,7 @@ const interconsultaEndpoints = (apiUrl: string, token: string) => {
     getRespuestaByInterconsultaId,
     responderInterconsulta,
     deleteInterconsulta,
+    getInterconsultaFile,
   }
 }
 

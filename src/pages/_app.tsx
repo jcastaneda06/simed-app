@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { AppProps } from 'next/app'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { ConfigProvider, useConfig } from '@/config/ConfigProvider'
+import { EdgeStoreProvider } from '@/lib/edgestore'
 
 const queryClient = new QueryClient()
 
@@ -15,13 +16,15 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider>
-        {router.pathname === '/login' ? (
-          <Component {...pageProps} />
-        ) : (
-          <Layout>
+        <EdgeStoreProvider>
+          {router.pathname === '/login' ? (
             <Component {...pageProps} />
-          </Layout>
-        )}
+          ) : (
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          )}
+        </EdgeStoreProvider>
       </ConfigProvider>
     </QueryClientProvider>
   )

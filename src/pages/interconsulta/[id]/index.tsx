@@ -1,12 +1,13 @@
 import { useState, FC, useRef } from 'react'
 import { useRouter } from 'next/router'
-import { AlertTriangle, Printer } from 'lucide-react'
+import { AlertTriangle, Download, Printer } from 'lucide-react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
 import { RespuestaInterconsulta } from '@/types/Interconsulta'
 import { Button } from '@/components/button/Button'
 import { useReactToPrint } from 'react-to-print'
+import { getDownloadUrl } from '@edgestore/react/utils'
 
 // Example structure of interconsulta. Adjust as needed to match your API.
 interface Interconsulta {
@@ -44,6 +45,7 @@ const RespuestaVirtual: FC = () => {
     getInterconsultaById,
     responderInterconsulta,
     updateInterconsultaState,
+    getInterconsultaFile,
   } = interconsultaEndpoints(apiUrl || '', token || '')
   const printRef = useRef<HTMLDivElement>(null)
   const reactToPrintFn = useReactToPrint({ contentRef: printRef })
@@ -58,6 +60,12 @@ const RespuestaVirtual: FC = () => {
   const respuestaInterconsultaQuery = useQuery<RespuestaInterconsulta>({
     queryKey: ['respuestaInterconsulta', id],
     queryFn: () => getRespuestaByInterconsultaId(id),
+  })
+
+  const interconsultaFileQuery = useQuery({
+    queryKey: ['interconsultaFile', id],
+    queryFn: () => getInterconsultaFile(id),
+    enabled: !!interconsultaQuery.data,
   })
 
   const interconsulta = interconsultaQuery.data
@@ -255,6 +263,36 @@ const RespuestaVirtual: FC = () => {
                 ) : null}
               </div>
             )}
+            {!interconsultaFileQuery?.isLoading &&
+              interconsultaFileQuery?.data && (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Archivos Adjuntos
+                  </h3>
+                  {interconsultaFileQuery.data?.data.map((file: any) => (
+                    <a
+                      key={file.url}
+                      href={file.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center text-start gap-2 bg-gray-50 hover:bg-gray-100 p-4 rounded-lg"
+                    >
+                      {file.url.split('.').pop() === 'pdf' ? (
+                        <div className="flex justify-start gap-2 w-full">
+                          <Download className="w-5 h-5" />
+                          <span>Adjunto de interconsulta.pdf</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={getDownloadUrl(file.url)}
+                          className="rounded-md shadow"
+                          alt="interconsulta"
+                        />
+                      )}
+                    </a>
+                  ))}
+                </>
+              )}
           </div>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mt-6">
@@ -265,7 +303,7 @@ const RespuestaVirtual: FC = () => {
           )}
           {/* Área de respuesta */}
           {!respuestaInterconsultaQuery.data ? (
-            <div className="bg-white p-6 rounded-lg shadow">
+            <div className="bg-white p-6 rounded-lg shadow mt-6">
               <h2 className="text-xl font-semibold mb-4">
                 Escribir Respuesta Virtual
               </h2>

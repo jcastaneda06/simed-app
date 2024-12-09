@@ -1,16 +1,25 @@
 import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Paperclip, X } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { Interconsulta } from '@/types/Interconsulta'
 import { useConfig } from '@/config/ConfigProvider'
+import { useEdgeStore } from '@/lib/edgestore'
+import { Button } from '@/components/button/Button'
+import Spinner from '@/components/spinner/Spinner'
+import IconButton from '@/components/icon-button/IconButton'
+import { useRouter } from 'next/router'
 
 const CrearInterconsulta = () => {
-  const { apiUrl, token } = useConfig()
+  const { apiUrl, token, user } = useConfig()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+  const [attachment, setAttachment] = useState<File | undefined>(undefined)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const { addInterconsulta } = interconsultaEndpoints(apiUrl || '', token || '')
+  const { edgestore } = useEdgeStore()
+  const router = useRouter()
 
   const crearInterconsultaMutation = useMutation({
     mutationKey: ['addInterconsulta'],
@@ -160,10 +169,30 @@ const CrearInterconsulta = () => {
         medicamentos: { preHospitalarios: '', hospitalarios: '' },
         prioridad: 'ALTA',
       })
+
+      await handleUploadFile(response._id)
     } catch (err: any) {
       setError(err.message)
     } finally {
       setLoading(false)
+      router.push('/')
+    }
+  }
+
+  const handleUploadFile = async (interconsultaId: string) => {
+    if (attachment) {
+      const res = await edgestore.publicFiles.upload({
+        file: attachment,
+        onProgressChange: (progress) => {
+          // you can use this to show a progress bar
+          setUploadProgress(progress)
+        },
+        input: {
+          servicio: 'interconsulta',
+          interconsultaId: interconsultaId,
+        },
+      })
+      return res
     }
   }
 
@@ -629,18 +658,67 @@ const CrearInterconsulta = () => {
         </div>
 
         {/* Botón de envío */}
-        <div className="flex justify-end">
-          <button
+        <div className="flex justify-end gap-4">
+          <div className="flex items-center">
+            <input
+              type="file"
+              name="attach"
+              className="hidden"
+              id="attach"
+              accept="image/*, .pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  const extension = file.name.split('.').pop()
+                  // check if the file is an image or a pdf
+                  if (['jpg', 'jpeg', 'png', 'pdf'].includes(extension || '')) {
+                    setAttachment(file)
+                  } else {
+                    alert('Archivo invalido')
+                  }
+                }
+              }}
+            />
+            {!loading ? (
+              <>
+                {attachment && (
+                  <IconButton
+                    variant="danger"
+                    icon={<X />}
+                    onClick={() => setAttachment(undefined)}
+                  />
+                )}
+                <label
+                  htmlFor="attach"
+                  className="text-black hover:bg-gray-100 px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 w-44"
+                >
+                  <div className="h-4 w-4">
+                    <Paperclip className="h-4 w-4 text-black" />
+                  </div>
+                  <span className="truncate">
+                    {attachment ? attachment.name : 'Adjuntar archivo'}
+                  </span>
+                </label>
+              </>
+            ) : (
+              <div className="flex  items-center gap-2">
+                <div className="w-44 h-2 border-2 rounded border-gray-300 flex items-center">
+                  <div
+                    className="h-2 rounded bg-gray-300 transition-all ease-in-out"
+                    style={{
+                      width: `${uploadProgress}%`,
+                    }}
+                  ></div>
+                </div>
+                <span className="text-black font-bold">{uploadProgress}%</span>
+              </div>
+            )}
+          </div>
+          <Button
+            text={loading ? 'Creando...' : 'Crear Interconsulta'}
             type="submit"
-            disabled={loading}
-            className={`
-                px-4 py-2 rounded-md text-white font-medium
-                ${loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}
-                transition-colors duration-200
-              `}
-          >
-            {loading ? 'Creando...' : 'Crear Interconsulta'}
-          </button>
+            icon={loading ? <Spinner /> : null}
+          />
         </div>
       </form>
     </div>

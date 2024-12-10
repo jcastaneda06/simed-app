@@ -16,7 +16,7 @@ type InterconsultaQuery = {
   servicioDestino?: { $ne: string } | { $eq: string }
 }
 
-console.log(Servicio.db.model('Servicio', Servicio.schema))
+console.log('Servicio', Servicio)
 export const getInterconsultas = async (fields: InterconsultaDto) => {
   await connectToDatabase()
   if (fields.filterBy === 'recibidas') {

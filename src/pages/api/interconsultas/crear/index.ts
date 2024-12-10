@@ -6,13 +6,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const interconsulta: Interconsulta = JSON.parse(req.body)
-  const interconsultaCreada = await createInterconsulta(interconsulta)
-  if (!interconsultaCreada) {
-    return res
-      .status(400)
-      .json({ exito: false, mensaje: 'Interconsulta es requerida' })
-  }
+  try {
+    const interconsulta: Interconsulta = JSON.parse(req.body)
+    const interconsultaCreada = await createInterconsulta(interconsulta)
+    if (!interconsultaCreada) {
+      return res
+        .status(400)
+        .json({ exito: false, mensaje: 'Interconsulta es requerida' })
+    }
 
-  return res.status(200).json(interconsultaCreada)
+    return res.status(200).json(interconsultaCreada)
+  } catch (err: any) {
+    console.error(err)
+  }
 }

@@ -17,6 +17,6 @@ export default async function handler(
 
     return res.status(200).json(interconsultaCreada)
   } catch (err: any) {
-    return res.status(500).json({ exito: false, mensaje: err.message })
+    console.error(err)
   }
 }

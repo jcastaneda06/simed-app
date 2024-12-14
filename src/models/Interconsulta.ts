@@ -85,6 +85,8 @@ interconsultaSchema.index({ 'paciente.numeroHistoria': 1 })
 interconsultaSchema.index({ estado: 1 })
 interconsultaSchema.index({ prioridad: 1 })
 interconsultaSchema.index({ fechaCreacion: -1 })
+interconsultaSchema.index({ 'servicioSolicitante.nombre': 1 })
+interconsultaSchema.index({ 'servicioDestino.nombre': 1 })
 
 export const Interconsulta =
   (mongoose.models.Interconsulta as mongoose.Model<InterconsultaSchema>) ||

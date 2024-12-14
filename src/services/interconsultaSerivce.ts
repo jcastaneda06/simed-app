@@ -15,7 +15,7 @@ type InterconsultaQuery = {
   servicioDestino?: { $ne: string } | { $eq: string }
 }
 
-console.log('Servicio', Servicio)
+Servicio
 export const getInterconsultas = async (fields: InterconsultaDto) => {
   try {
     if (fields.filterBy === 'recibidas') {

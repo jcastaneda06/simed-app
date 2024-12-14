@@ -76,6 +76,9 @@ const servicioSchema = new Schema<ServicioShema>(
   }
 )
 
+servicioSchema.index({ nombre: 1 })
+servicioSchema.index({ descripcion: 1 })
+
 export const Servicio =
   (mongoose.models.Servicio as mongoose.Model<ServicioShema>) ||
   mongoose.model<ServicioShema>('Servicio', servicioSchema)

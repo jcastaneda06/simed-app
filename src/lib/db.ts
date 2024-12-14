@@ -26,7 +26,10 @@ export async function connectToDatabase() {
     }
 
     cached.promise = mongoose
-      .connect(uri)
+      .connect(uri, {
+        connectTimeoutMS: 30000, // Tiempo de espera de conexión
+        socketTimeoutMS: 45000, // Tiempo de espera para operaciones
+      })
       .then((mongoose) => mongoose.connection)
 
     console.log('Connected to MongoDB')

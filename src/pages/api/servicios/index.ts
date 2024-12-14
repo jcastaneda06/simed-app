@@ -3,7 +3,9 @@ import {
   getAllServices,
   createService,
   searchServicesByName,
+  addBulkServices,
 } from '@/services/servicioService'
+import { Servicio } from '@/types/Servicio'
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,11 +18,13 @@ export default async function handler(
     }
 
     if (req.method === 'POST') {
-      const servicio = await createService(req.body)
+      const servicio: Servicio = req.body
+      const result = await createService(servicio)
+      // const result = await addBulkServices(servicio)
       return res.status(201).json({
         exito: true,
         mensaje: 'Servicio creado exitosamente',
-        data: servicio,
+        data: result,
       })
     }
 

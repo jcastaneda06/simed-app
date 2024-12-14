@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AlertTriangle, Paperclip, X } from 'lucide-react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { Interconsulta } from '@/types/Interconsulta'
 import { useConfig } from '@/config/ConfigProvider'
@@ -9,6 +9,8 @@ import { Button } from '@/components/button/Button'
 import Spinner from '@/components/spinner/Spinner'
 import IconButton from '@/components/icon-button/IconButton'
 import { useRouter } from 'next/router'
+import servicioEndpoints from '@/lib/endpoints/servicioEndpoints'
+import { Servicio } from '@/types/Servicio'
 
 const CrearInterconsulta = () => {
   const { apiUrl, token, user } = useConfig()
@@ -18,6 +20,7 @@ const CrearInterconsulta = () => {
   const [attachment, setAttachment] = useState<File | undefined>(undefined)
   const [uploadProgress, setUploadProgress] = useState(0)
   const { addInterconsulta } = interconsultaEndpoints(apiUrl || '', token || '')
+  const { getServicios } = servicioEndpoints(apiUrl || '', token || '')
   const { edgestore } = useEdgeStore()
   const router = useRouter()
 
@@ -26,10 +29,12 @@ const CrearInterconsulta = () => {
     mutationFn: (payload: Interconsulta) => addInterconsulta(payload),
   })
 
-  const servicios = [
-    { id: '672e05bad3ce20d6407a5143', nombre: 'Cirugía' },
-    { id: '672e099e636c9f5552583436', nombre: 'Medicina Interna' },
-  ]
+  const serviciosQuery = useQuery<Servicio[]>({
+    queryKey: ['getAllServicios'],
+    queryFn: async () => getServicios(),
+  })
+
+  const servicios = serviciosQuery.data || []
 
   const [formData, setFormData] = useState<{ [key: string]: any }>({
     paciente: {
@@ -198,7 +203,7 @@ const CrearInterconsulta = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">
+      <h1 className="text-2xl font-bold text-gray-900 px-4">
         Crear Nueva Interconsulta
       </h1>
 
@@ -291,7 +296,7 @@ const CrearInterconsulta = () => {
               >
                 <option value="">Seleccione un servicio</option>
                 {servicios.map((servicio) => (
-                  <option key={servicio.id} value={servicio.id}>
+                  <option key={servicio._id} value={servicio._id}>
                     {servicio.nombre}
                   </option>
                 ))}
@@ -315,7 +320,7 @@ const CrearInterconsulta = () => {
               >
                 <option value="">Seleccione un servicio</option>
                 {servicios.map((servicio) => (
-                  <option key={servicio.id} value={servicio.id}>
+                  <option key={servicio._id} value={servicio._id}>
                     {servicio.nombre}
                   </option>
                 ))}

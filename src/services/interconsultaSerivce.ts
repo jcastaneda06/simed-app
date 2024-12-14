@@ -18,7 +18,6 @@ type InterconsultaQuery = {
 
 console.log('Servicio', Servicio)
 export const getInterconsultas = async (fields: InterconsultaDto) => {
-  await connectToDatabase()
   if (fields.filterBy === 'recibidas') {
     let query: InterconsultaQuery = {}
 
@@ -88,8 +87,6 @@ export const getInterconsultasByService = async (
 }
 
 export const updateInterconsultaState = async (id: string, estado: string) => {
-  await connectToDatabase()
-
   if (
     !['PENDIENTE', 'EN_PROCESO', 'COMPLETADA', 'CANCELADA'].includes(estado)
   ) {

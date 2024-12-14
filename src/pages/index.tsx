@@ -1,4 +1,4 @@
-import { useState, useEffect, FC } from 'react'
+import { useState, useEffect, FC, useRef } from 'react'
 import { Activity, AlertTriangle, FileCheck, HeartPulse } from 'lucide-react'
 import { Select, SelectItem } from '@/components/select/Select'
 import { Usuario } from '@/types/Usuario'
@@ -11,12 +11,17 @@ import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import CollapsibleSection from '@/components/collapsible-section/CollapsibleSection'
 import { useConfig } from '@/config/ConfigProvider'
 import Spinner from '@/components/spinner/Spinner'
+import TextField from '@/components/text-field/TextField'
+import departamentoEndpoints from '@/lib/endpoints/departamentoEndpoints'
+import { Deparatamento } from '@/types/Deparatamento'
+import normalizeText from '@/helpers/normalizeText'
 const jwt = require('jsonwebtoken')
 
 const Home: FC = () => {
   const { user, apiUrl, token } = useConfig()
   const decoded = jwt.decode(token)
   const { getServicios } = servicioEndpoints(apiUrl || '', token || '')
+  const { getDepartamentos } = departamentoEndpoints(apiUrl || '', token || '')
   const { getInterconsultas } = interconsultaEndpoints(
     apiUrl || '',
     token || ''
@@ -27,10 +32,48 @@ const Home: FC = () => {
     idServicio: '',
   })
 
+  const [searchFilter, setSearchFilter] = useState('')
+  const [searchFilterBy, setSearchFilterBy] = useState<
+    'servicio' | 'departamento'
+  >('servicio')
+
+  const [abierto, setAbierto] = useState(false)
+  const contenedorRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      // Verifica si el click fue fuera del contenedor
+      if (
+        contenedorRef.current &&
+        !contenedorRef.current.contains(event.target as Node)
+      ) {
+        setAbierto(false)
+      }
+    }
+
+    // Agregamos el listener al hacer mount
+    document.addEventListener('mousedown', handleClickOutside)
+
+    // Removemos el listener al desmontar el componente
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const handleInputClick = () => {
+    setAbierto(true)
+  }
+
   const serviciosQuery = useQuery<Servicio[]>({
     queryKey: ['getServicios', user],
     queryFn: () => getServicios(),
     enabled: decoded?.role === 'ADMIN',
+  })
+
+  const departamentosQuery = useQuery<Deparatamento[]>({
+    queryKey: ['getDepartamentos', user],
+    queryFn: () => getDepartamentos(),
+    enabled: decoded?.role === 'ADMIN' && serviciosQuery.isSuccess,
   })
 
   const interconsultasEnviadasQuery = useQuery<Interconsulta[]>({
@@ -73,6 +116,86 @@ const Home: FC = () => {
     }))
   }
 
+  const handleSetSearchFilteryBy = (value: 'servicio' | 'departamento') => {
+    setSearchFilterBy(value)
+  }
+
+  const getServiceDepartamento = (serviceId: string) => {
+    const servicio = serviciosQuery.data?.find((s) => s._id === serviceId)
+    const departamento = departamentosQuery.data?.find((d) =>
+      d.servicios.includes(serviceId)
+    )
+
+    if (!servicio || !departamento) return null
+    return (
+      <>
+        <span>{servicio.nombre}</span> -{' '}
+        <span className=" text-gray-400">{departamento.nombre}</span>
+      </>
+    )
+  }
+
+  const filterByServicio = () => {
+    const filteredServicio = serviciosQuery.data?.filter((servicio) =>
+      normalizeText(servicio.nombre)
+        .toLowerCase()
+        .startsWith(normalizeText(searchFilter.toLowerCase()))
+    )
+
+    if (filteredServicio?.length === 0) return <div>No hay resultados</div>
+
+    const filteredElement = (
+      <div className="absolute top-2 shadow-md flex flex-col bg-white border border-gray-200 w-full z-10 rounded-md max-h-56 overflow-auto text-ellipsis">
+        {filteredServicio?.map((servicio) => (
+          <button
+            key={servicio._id}
+            onClick={() => handleSetFilters('idServicio', servicio._id)}
+            className="text-left text-sm text-gray-600 hover:bg-gray-100 p-2"
+          >
+            {getServiceDepartamento(servicio._id)}
+          </button>
+        ))}
+      </div>
+    )
+
+    return filteredElement
+  }
+
+  const filterByDepartamento = () => {
+    const filteredDepartamento = serviciosQuery.data?.filter((servicio) =>
+      departamentosQuery.data
+        ?.find((d) =>
+          normalizeText(d.nombre)
+            .toLowerCase()
+            .startsWith(normalizeText(searchFilter.toLowerCase()))
+        )
+        ?.servicios.includes(servicio._id)
+    )
+
+    if (filteredDepartamento?.length === 0)
+      return (
+        <div className="text-sm text-gray-600 p-2 text-center">
+          No hay resultados
+        </div>
+      )
+
+    const filteredElement = (
+      <div className="absolute top-2 shadow-md flex flex-col bg-white border border-gray-200 w-full z-10 rounded-md max-h-56 overflow-auto text-ellipsis">
+        {filteredDepartamento?.map((servicio) => (
+          <button
+            key={servicio._id}
+            onClick={() => handleSetFilters('idServicio', servicio._id)}
+            className="text-left text-sm text-gray-600 hover:bg-gray-100 p-2"
+          >
+            {getServiceDepartamento(servicio._id)}
+          </button>
+        ))}
+      </div>
+    )
+
+    return filteredElement
+  }
+
   if (
     interconsultasEnviadasQuery.isLoading ||
     interconsultasRecibidasQuery.isLoading
@@ -105,6 +228,54 @@ const Home: FC = () => {
   return (
     <div className="min-h-screen text-black bg-gray-50">
       <div className="container mx-auto p-0 md:p-4">
+        <div className="md:hidden flex flex-col gap-2 px-4 mb-4">
+          <div className="flex gap-2">
+            <div className="flex gap-2">
+              <div className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  id="servicio"
+                  name="departamento"
+                  value="servicio"
+                  checked={searchFilterBy === 'servicio'}
+                  onClick={() => handleSetSearchFilteryBy('servicio')}
+                />
+                <label htmlFor="servicio" className="text-gray-500 text-sm">
+                  Servicio
+                </label>
+              </div>
+              <div className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  id="departamento"
+                  name="departamento"
+                  value="departamento"
+                  checked={searchFilterBy === 'departamento'}
+                  onClick={() => handleSetSearchFilteryBy('departamento')}
+                />
+                <label htmlFor="departamento" className="text-gray-500 text-sm">
+                  Departamento
+                </label>
+              </div>
+            </div>
+          </div>
+          <div ref={contenedorRef} className="flex-col">
+            <TextField
+              value={searchFilter}
+              onClick={handleInputClick}
+              onChange={(value) => setSearchFilter(value)}
+              placeholder="Buscar..."
+            />
+            <div className="relative">
+              {abierto &&
+                (searchFilterBy === 'servicio'
+                  ? filterByServicio()
+                  : searchFilterBy === 'departamento'
+                    ? filterByDepartamento()
+                    : null)}
+            </div>
+          </div>
+        </div>
         <div className="mb-6 flex gap-4 mx-4 md:mx-0">
           <div className="flex-1 flex flex-col">
             <div className="flex justify-start items-center gap-2">
@@ -143,26 +314,62 @@ const Home: FC = () => {
             </Select>
           </div>
 
-          <div className="flex-1 flex flex-col">
-            <div className="flex justify-start items-center gap-2">
-              <HeartPulse className="w-4 h-4 text-gray-500" />{' '}
-              <span className="text-gray-500 text-sm">Servicio</span>
+          <div className="md:flex hidden flex-col flex-1 gap-2">
+            <div className="flex justify-between items-center gap-2">
+              <div className="flex items-center gap-2">
+                <HeartPulse className="w-4 h-4 text-gray-500" />{' '}
+                <span className="text-gray-500 text-sm">Servicio</span>
+              </div>
+              <div className="flex gap-2">
+                <div className="flex gap-2">
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="servicio"
+                      name="servicio"
+                      value="servicio"
+                      checked={searchFilterBy === 'servicio'}
+                      onClick={() => handleSetSearchFilteryBy('servicio')}
+                    />
+                    <label htmlFor="servicio" className="text-gray-500 text-sm">
+                      Servicio
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="radio"
+                      id="departamento"
+                      name="departamento"
+                      value="departamento"
+                      checked={searchFilterBy === 'departamento'}
+                      onClick={() => handleSetSearchFilteryBy('departamento')}
+                    />
+                    <label
+                      htmlFor="departamento"
+                      className="text-gray-500 text-sm"
+                    >
+                      Departamento
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
-            {decoded?.role === 'ADMIN' && (
-              <Select
-                value={filtros.idServicio}
-                onChange={(e) => handleSetFilters('idServicio', e.target.value)}
-              >
-                <SelectItem value="todos" selected={filtros.idServicio === ''}>
-                  Todos
-                </SelectItem>
-                {serviciosQuery.data?.map((servicio) => (
-                  <SelectItem key={servicio._id} value={servicio._id}>
-                    {servicio.nombre}
-                  </SelectItem>
-                ))}
-              </Select>
-            )}
+            <div ref={contenedorRef} className="flex-col">
+              <TextField
+                value={searchFilter}
+                onClick={handleInputClick}
+                onChange={(value) => setSearchFilter(value)}
+                placeholder="Buscar..."
+              />
+              <div className="relative">
+                {abierto &&
+                  (searchFilterBy === 'servicio'
+                    ? filterByServicio()
+                    : searchFilterBy === 'departamento'
+                      ? filterByDepartamento()
+                      : null)}
+              </div>
+            </div>
           </div>
         </div>
 

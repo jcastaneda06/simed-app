@@ -44,3 +44,7 @@ export const searchServicesByName = async (name: string) => {
     nombre: { $regex: name, $options: 'i' },
   }).sort('nombre')
 }
+
+export const addBulkServices = async (services: any[]) => {
+  return await Servicio.insertMany(services)
+}

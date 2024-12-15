@@ -8,7 +8,13 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { ConfigProvider, useConfig } from '@/config/ConfigProvider'
 import { EdgeStoreProvider } from '@/lib/edgestore'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()

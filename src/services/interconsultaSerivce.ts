@@ -1,5 +1,6 @@
 import Servicio from '@/models/Servicio'
 import Interconsulta from '@/models/Interconsulta'
+import { connectToDatabase } from '@/lib/db'
 
 type InterconsultaDto = {
   estado: string
@@ -15,9 +16,10 @@ type InterconsultaQuery = {
   servicioDestino?: { $ne: string } | { $eq: string }
 }
 
-Servicio
+console.log('Servicio', Servicio)
 export const getInterconsultas = async (fields: InterconsultaDto) => {
   try {
+    await connectToDatabase()
     if (fields.filterBy === 'recibidas') {
       let query: InterconsultaQuery = {}
 

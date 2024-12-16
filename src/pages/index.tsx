@@ -15,6 +15,7 @@ import TextField from '@/components/text-field/TextField'
 import departamentoEndpoints from '@/lib/endpoints/departamentoEndpoints'
 import { Deparatamento } from '@/types/Deparatamento'
 import normalizeText from '@/helpers/normalizeText'
+import ClickAwayListener from '@/components/click-away-listener/ClickAwayListener'
 const jwt = require('jsonwebtoken')
 
 const Home: FC = () => {
@@ -38,27 +39,6 @@ const Home: FC = () => {
   >('servicio')
 
   const [abierto, setAbierto] = useState(false)
-  const contenedorRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      // Verifica si el click fue fuera del contenedor
-      if (
-        contenedorRef.current &&
-        !contenedorRef.current.contains(event.target as Node)
-      ) {
-        setAbierto(false)
-      }
-    }
-
-    // Agregamos el listener al hacer mount
-    document.addEventListener('mousedown', handleClickOutside)
-
-    // Removemos el listener al desmontar el componente
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   const handleInputClick = () => {
     setAbierto(true)
@@ -269,22 +249,24 @@ const Home: FC = () => {
               </div>
             </div>
           </div>
-          <div ref={contenedorRef} className="flex-col">
-            <TextField
-              value={searchFilter}
-              onClick={handleInputClick}
-              onChange={(value) => setSearchFilter(value)}
-              placeholder="Buscar..."
-            />
-            <div className="relative">
-              {abierto &&
-                (searchFilterBy === 'servicio'
-                  ? filterByServicio()
-                  : searchFilterBy === 'departamento'
-                    ? filterByDepartamento()
-                    : null)}
+          <ClickAwayListener onClickAway={() => setAbierto(false)}>
+            <div className="flex-col">
+              <TextField
+                value={searchFilter}
+                onClick={handleInputClick}
+                onChange={(value) => setSearchFilter(value)}
+                placeholder="Buscar..."
+              />
+              <div className="relative">
+                {abierto &&
+                  (searchFilterBy === 'servicio'
+                    ? filterByServicio()
+                    : searchFilterBy === 'departamento'
+                      ? filterByDepartamento()
+                      : null)}
+              </div>
             </div>
-          </div>
+          </ClickAwayListener>
         </div>
         <div className="mb-6 flex gap-4 mx-4 md:mx-0">
           <div className="flex-1 flex flex-col">
@@ -364,22 +346,24 @@ const Home: FC = () => {
                 </div>
               </div>
             </div>
-            <div ref={contenedorRef} className="flex-col">
-              <TextField
-                value={searchFilter}
-                onClick={handleInputClick}
-                onChange={(value) => setSearchFilter(value)}
-                placeholder="Buscar..."
-              />
-              <div className="relative">
-                {abierto &&
-                  (searchFilterBy === 'servicio'
-                    ? filterByServicio()
-                    : searchFilterBy === 'departamento'
-                      ? filterByDepartamento()
-                      : null)}
+            <ClickAwayListener onClickAway={() => setAbierto(false)}>
+              <div className="flex-col">
+                <TextField
+                  value={searchFilter}
+                  onClick={handleInputClick}
+                  onChange={(value) => setSearchFilter(value)}
+                  placeholder="Buscar..."
+                />
+                <div className="relative">
+                  {abierto &&
+                    (searchFilterBy === 'servicio'
+                      ? filterByServicio()
+                      : searchFilterBy === 'departamento'
+                        ? filterByDepartamento()
+                        : null)}
+                </div>
               </div>
-            </div>
+            </ClickAwayListener>
           </div>
         </div>
 

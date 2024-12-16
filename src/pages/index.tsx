@@ -136,11 +136,14 @@ const Home: FC = () => {
   }
 
   const filterByServicio = () => {
-    const filteredServicio = serviciosQuery.data?.filter((servicio) =>
-      normalizeText(servicio.nombre)
-        .toLowerCase()
-        .startsWith(normalizeText(searchFilter.toLowerCase()))
-    )
+    const filteredServicio =
+      searchFilter.length === 0
+        ? serviciosQuery.data
+        : serviciosQuery.data?.filter((servicio) =>
+            normalizeText(servicio.nombre)
+              .toLowerCase()
+              .startsWith(normalizeText(searchFilter.toLowerCase()))
+          )
 
     if (filteredServicio?.length === 0) return <div>No hay resultados</div>
 
@@ -162,15 +165,18 @@ const Home: FC = () => {
   }
 
   const filterByDepartamento = () => {
-    const filteredDepartamento = serviciosQuery.data?.filter((servicio) =>
-      departamentosQuery.data
-        ?.find((d) =>
-          normalizeText(d.nombre)
-            .toLowerCase()
-            .startsWith(normalizeText(searchFilter.toLowerCase()))
-        )
-        ?.servicios.includes(servicio._id)
-    )
+    const filteredDepartamento =
+      searchFilter.length === 0
+        ? serviciosQuery.data
+        : serviciosQuery.data?.filter((servicio) =>
+            departamentosQuery.data
+              ?.find((d) =>
+                normalizeText(d.nombre)
+                  .toLowerCase()
+                  .startsWith(normalizeText(searchFilter.toLowerCase()))
+              )
+              ?.servicios.includes(servicio._id)
+          )
 
     if (filteredDepartamento?.length === 0)
       return (
@@ -229,16 +235,20 @@ const Home: FC = () => {
     <div className="min-h-screen text-black bg-gray-50">
       <div className="container mx-auto p-0 md:p-4">
         <div className="md:hidden flex flex-col gap-2 px-4 mb-4">
-          <div className="flex gap-2">
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex items-center gap-2">
+              <HeartPulse className="w-4 h-4 text-gray-500" />{' '}
+              <span className="text-gray-500 text-sm">Servicio</span>
+            </div>
             <div className="flex gap-2">
               <div className="flex items-center gap-1">
                 <input
                   type="radio"
                   id="servicio"
-                  name="departamento"
+                  name="searchByMobile"
                   value="servicio"
                   checked={searchFilterBy === 'servicio'}
-                  onClick={() => handleSetSearchFilteryBy('servicio')}
+                  onChange={() => handleSetSearchFilteryBy('servicio')}
                 />
                 <label htmlFor="servicio" className="text-gray-500 text-sm">
                   Servicio
@@ -248,10 +258,10 @@ const Home: FC = () => {
                 <input
                   type="radio"
                   id="departamento"
-                  name="departamento"
+                  name="searchByMobile"
                   value="departamento"
                   checked={searchFilterBy === 'departamento'}
-                  onClick={() => handleSetSearchFilteryBy('departamento')}
+                  onChange={() => handleSetSearchFilteryBy('departamento')}
                 />
                 <label htmlFor="departamento" className="text-gray-500 text-sm">
                   Departamento
@@ -326,10 +336,10 @@ const Home: FC = () => {
                     <input
                       type="radio"
                       id="servicio"
-                      name="servicio"
+                      name="searchBy"
                       value="servicio"
                       checked={searchFilterBy === 'servicio'}
-                      onClick={() => handleSetSearchFilteryBy('servicio')}
+                      onChange={() => handleSetSearchFilteryBy('servicio')}
                     />
                     <label htmlFor="servicio" className="text-gray-500 text-sm">
                       Servicio
@@ -339,10 +349,10 @@ const Home: FC = () => {
                     <input
                       type="radio"
                       id="departamento"
-                      name="departamento"
+                      name="searchBy"
                       value="departamento"
                       checked={searchFilterBy === 'departamento'}
-                      onClick={() => handleSetSearchFilteryBy('departamento')}
+                      onChange={() => handleSetSearchFilteryBy('departamento')}
                     />
                     <label
                       htmlFor="departamento"

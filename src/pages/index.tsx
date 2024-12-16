@@ -377,25 +377,21 @@ const Home: FC = () => {
                 No hay interconsultas enviadas para mostrar
               </div>
             ) : (
-              <div className="space-y-4">
-                {interconsultasEnviadasQuery.data?.map((interconsulta) =>
-                  interconsulta ? (
-                    <InterconsultaCard
-                      key={interconsulta._id}
-                      interconsulta={interconsulta}
-                      onStatusChange={() =>
-                        interconsultasEnviadasQuery.refetch()
-                      }
-                      loading={interconsultasEnviadasQuery.isLoading}
-                      error={interconsultasEnviadasQuery.error ? 'Error' : ''}
-                      interconsultasEnviadas={interconsultasEnviadasQuery.data}
-                      interconsultasRecibidas={
-                        interconsultasRecibidasQuery.data || []
-                      }
-                    />
-                  ) : null
-                )}
-              </div>
+              interconsultasEnviadasQuery.data?.map((interconsulta) =>
+                interconsulta ? (
+                  <InterconsultaCard
+                    key={interconsulta._id}
+                    interconsulta={interconsulta}
+                    onStatusChange={() => interconsultasEnviadasQuery.refetch()}
+                    loading={interconsultasEnviadasQuery.isLoading}
+                    error={interconsultasEnviadasQuery.error ? 'Error' : ''}
+                    interconsultasEnviadas={interconsultasEnviadasQuery.data}
+                    interconsultasRecibidas={
+                      interconsultasRecibidasQuery.data || []
+                    }
+                  />
+                ) : null
+              )
             )}
           </CollapsibleSection>
 

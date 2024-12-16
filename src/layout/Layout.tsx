@@ -7,6 +7,7 @@ import Drawer from '@/components/drawer/Drawer'
 import { Button } from '@/components/button/Button'
 import IconButton from '@/components/icon-button/IconButton'
 import { Tooltip } from 'react-tooltip'
+import ClickAwayListener from '@/components/click-away-listener/ClickAwayListener'
 
 const jwt = require('jsonwebtoken')
 
@@ -61,41 +62,43 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
               icon={<Menu className="h-5 w-5 text-gray-500" />}
               onClick={() => setOpen(true)}
             />
-            <Drawer open={open}>
-              <div className="flex flex-col gap-2">
+            <ClickAwayListener onClickAway={() => setOpen(false)}>
+              <Drawer open={open}>
                 <div className="flex flex-col gap-2">
-                  {user && (
-                    <div className="flex justify-between">
-                      <div className="rounded-lg text-sm flex items-center gap-2">
-                        <User className="h-5 w-5 text-gray-500" />
-                        <div className="flex flex-col items-start">
-                          <div className="flex">
-                            <span className="font-medium text-gray-700">
-                              {user.nombre || user.email}
+                  <div className="flex flex-col gap-2">
+                    {user && (
+                      <div className="flex justify-between">
+                        <div className="rounded-lg text-sm flex items-center gap-2">
+                          <User className="h-5 w-5 text-gray-500" />
+                          <div className="flex flex-col items-start">
+                            <div className="flex">
+                              <span className="font-medium text-gray-700">
+                                {user.nombre || user.email}
+                              </span>
+                            </div>
+                            <span className="text-gray-500 text-xs">
+                              {decoded?.role || 'Usuario'}
                             </span>
                           </div>
-                          <span className="text-gray-500 text-xs">
-                            {decoded?.role || 'Usuario'}
-                          </span>
                         </div>
+                        <IconButton
+                          icon={<X className="h-5 w-5 text-gray-500" />}
+                          onClick={() => setOpen(false)}
+                        />
                       </div>
-                      <IconButton
-                        icon={<X className="h-5 w-5 text-gray-500" />}
-                        onClick={() => setOpen(false)}
-                      />
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  <div className="flex">
+                    <Button
+                      text="Cerrar sesión"
+                      variant="secondary"
+                      style="flex-1"
+                      onClick={() => handleLogout()}
+                    />
+                  </div>
                 </div>
-                <div className="flex">
-                  <Button
-                    text="Cerrar sesión"
-                    variant="secondary"
-                    style="flex-1"
-                    onClick={() => handleLogout()}
-                  />
-                </div>
-              </div>
-            </Drawer>
+              </Drawer>
+            </ClickAwayListener>
           </div>
           <div className="hidden md:block gap">
             {user && (

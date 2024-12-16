@@ -198,7 +198,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+    <div className="flex flex-col bg-white transition-all duration-300 border border-gray-100 hover:border-gray-200">
       <div className="p-4">
         <div
           className="cursor-pointer select-none"

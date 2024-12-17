@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { LoginResult, Usuario } from '@/types/Usuario'
 import { useConfig } from '@/config/ConfigProvider'
 import { Lock, Mail } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 type LoginCredentials = {
   email: string
@@ -47,7 +48,7 @@ export default function Login() {
     localStorage.setItem('usuario', JSON.stringify(usuarioInfo))
     setToken(response.token)
     setUser(usuarioInfo)
-
+    toast.info(`Bienvenid@ ${response.usuario.nombre}!`)
     // Redirigir al usuario
     router.push('/')
   }

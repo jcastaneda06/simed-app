@@ -8,6 +8,7 @@ import { Button } from '@/components/button/Button'
 import IconButton from '@/components/icon-button/IconButton'
 import { Tooltip } from 'react-tooltip'
 import ClickAwayListener from '@/components/click-away-listener/ClickAwayListener'
+import { toast, ToastContainer } from 'react-toastify'
 
 const jwt = require('jsonwebtoken')
 
@@ -15,7 +16,6 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter()
   const { user, token } = useConfig()
   const [open, setOpen] = useState(false)
-
   const decoded = jwt.decode(token)
 
   const navigationLinks = [
@@ -46,11 +46,11 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
                   key={link.href}
                   href={link.href}
                   className={`inline-flex items-center p-4 border-b-2 text-sm font-medium
-                      ${
-                        router.pathname === link.href
-                          ? 'border-blue-500 text-gray-900'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                      }`}
+                  ${
+                    router.pathname === link.href
+                      ? 'border-blue-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -151,6 +151,13 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
 
       {/* Contenido principal */}
       <main className="max-w-7xl mx-auto px-0 md:px-4 lg:px-8 py-4">
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          style={{
+            marginTop: '1rem',
+          }}
+        />
         {children}
       </main>
     </div>

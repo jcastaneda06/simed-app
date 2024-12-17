@@ -1,5 +1,11 @@
 import { useState, useEffect, FC, useRef } from 'react'
-import { Activity, AlertTriangle, FileCheck, HeartPulse } from 'lucide-react'
+import {
+  Activity,
+  AlertTriangle,
+  FileCheck,
+  Filter,
+  HeartPulse,
+} from 'lucide-react'
 import { Select, SelectItem } from '@/components/select/Select'
 import { Usuario } from '@/types/Usuario'
 import { Interconsulta } from '@/types/Interconsulta'
@@ -11,10 +17,11 @@ import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import CollapsibleSection from '@/components/collapsible-section/CollapsibleSection'
 import { useConfig } from '@/config/ConfigProvider'
 import Spinner from '@/components/spinner/Spinner'
-import TextField from '@/components/text-field/TextField'
 import departamentoEndpoints from '@/lib/endpoints/departamentoEndpoints'
 import { Deparatamento } from '@/types/Deparatamento'
 import normalizeText from '@/helpers/normalizeText'
+import InterconsultaFilters from '@/components/interconsulta-filters/InterconsultaFIlters'
+import { Button } from '@/components/button/Button'
 const jwt = require('jsonwebtoken')
 
 const Home: FC = () => {
@@ -38,27 +45,6 @@ const Home: FC = () => {
   >('servicio')
 
   const [abierto, setAbierto] = useState(false)
-  const contenedorRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      // Verifica si el click fue fuera del contenedor
-      if (
-        contenedorRef.current &&
-        !contenedorRef.current.contains(event.target as Node)
-      ) {
-        setAbierto(false)
-      }
-    }
-
-    // Agregamos el listener al hacer mount
-    document.addEventListener('mousedown', handleClickOutside)
-
-    // Removemos el listener al desmontar el componente
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   const handleInputClick = () => {
     setAbierto(true)
@@ -100,6 +86,25 @@ const Home: FC = () => {
     },
   })
 
+  // useEffect(() => {
+  //   if (!('Notification' in window)) {
+  //     alert('This browser does not support desktop notification')
+  //   } else if (Notification.permission === 'granted') {
+  //     const notification = new Notification('Nueva interconsulta', {
+  //       body: 'Se ha creado una nueva interconsulta',
+  //     })
+  //     // …
+  //   } else if (Notification.permission !== 'denied') {
+  //     Notification.requestPermission().then((permission) => {
+  //       if (permission === 'granted') {
+  //         const notification = new Notification('Nueva interconsulta', {
+  //           body: 'Se ha creado una nueva interconsulta',
+  //         })
+  //       }
+  //     })
+  //   }
+  // }, [])
+
   useEffect(() => {
     if (user && decoded?.role !== 'ADMIN') {
       setFiltros((prev) => ({
@@ -136,11 +141,14 @@ const Home: FC = () => {
   }
 
   const filterByServicio = () => {
-    const filteredServicio = serviciosQuery.data?.filter((servicio) =>
-      normalizeText(servicio.nombre)
-        .toLowerCase()
-        .startsWith(normalizeText(searchFilter.toLowerCase()))
-    )
+    const filteredServicio =
+      searchFilter.length === 0
+        ? serviciosQuery.data
+        : serviciosQuery.data?.filter((servicio) =>
+            normalizeText(servicio.nombre)
+              .toLowerCase()
+              .startsWith(normalizeText(searchFilter.toLowerCase()))
+          )
 
     if (filteredServicio?.length === 0) return <div>No hay resultados</div>
 
@@ -162,15 +170,18 @@ const Home: FC = () => {
   }
 
   const filterByDepartamento = () => {
-    const filteredDepartamento = serviciosQuery.data?.filter((servicio) =>
-      departamentosQuery.data
-        ?.find((d) =>
-          normalizeText(d.nombre)
-            .toLowerCase()
-            .startsWith(normalizeText(searchFilter.toLowerCase()))
-        )
-        ?.servicios.includes(servicio._id)
-    )
+    const filteredDepartamento =
+      searchFilter.length === 0
+        ? serviciosQuery.data
+        : serviciosQuery.data?.filter((servicio) =>
+            departamentosQuery.data
+              ?.find((d) =>
+                normalizeText(d.nombre)
+                  .toLowerCase()
+                  .startsWith(normalizeText(searchFilter.toLowerCase()))
+              )
+              ?.servicios.includes(servicio._id)
+          )
 
     if (filteredDepartamento?.length === 0)
       return (
@@ -226,154 +237,22 @@ const Home: FC = () => {
   }
 
   return (
-    <div className="min-h-screen text-black bg-gray-50">
-      <div className="container mx-auto p-0 md:p-4">
-        <div className="md:hidden flex flex-col gap-2 px-4 mb-4">
-          <div className="flex gap-2">
-            <div className="flex gap-2">
-              <div className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  id="servicio"
-                  name="departamento"
-                  value="servicio"
-                  checked={searchFilterBy === 'servicio'}
-                  onClick={() => handleSetSearchFilteryBy('servicio')}
-                />
-                <label htmlFor="servicio" className="text-gray-500 text-sm">
-                  Servicio
-                </label>
-              </div>
-              <div className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  id="departamento"
-                  name="departamento"
-                  value="departamento"
-                  checked={searchFilterBy === 'departamento'}
-                  onClick={() => handleSetSearchFilteryBy('departamento')}
-                />
-                <label htmlFor="departamento" className="text-gray-500 text-sm">
-                  Departamento
-                </label>
-              </div>
-            </div>
-          </div>
-          <div ref={contenedorRef} className="flex-col">
-            <TextField
-              value={searchFilter}
-              onClick={handleInputClick}
-              onChange={(value) => setSearchFilter(value)}
-              placeholder="Buscar..."
-            />
-            <div className="relative">
-              {abierto &&
-                (searchFilterBy === 'servicio'
-                  ? filterByServicio()
-                  : searchFilterBy === 'departamento'
-                    ? filterByDepartamento()
-                    : null)}
-            </div>
-          </div>
-        </div>
-        <div className="mb-6 flex gap-4 mx-4 md:mx-0">
-          <div className="flex-1 flex flex-col">
-            <div className="flex justify-start items-center gap-2">
-              <FileCheck className="w-4 h-4 text-gray-500" />{' '}
-              <span className="text-gray-500 text-sm">Estado</span>
-            </div>
-            <Select
-              value={filtros.estado}
-              onChange={(e) => handleSetFilters('estado', e.target.value)}
-            >
-              <SelectItem value="todos" selected={filtros.estado === ''}>
-                Todos
-              </SelectItem>
-              <SelectItem value="PENDIENTE">Pendientes</SelectItem>
-              <SelectItem value="EN_PROCESO">En proceso</SelectItem>
-              <SelectItem value="COMPLETADA">Completadas</SelectItem>
-              <SelectItem value="CANCELADA">Canceladas</SelectItem>
-            </Select>
-          </div>
-
-          <div className="flex-1 flex flex-col">
-            <div className="flex justify-start items-center gap-2">
-              <Activity className="w-4 h-4 text-gray-500" />{' '}
-              <span className="text-gray-500 text-sm">Prioridad</span>
-            </div>
-            <Select
-              value={filtros.prioridad}
-              onChange={(e) => handleSetFilters('prioridad', e.target.value)}
-            >
-              <SelectItem value="todos" selected={filtros.prioridad === ''}>
-                Todas
-              </SelectItem>
-              <SelectItem value="BAJA">Baja</SelectItem>
-              <SelectItem value="MEDIA">Media</SelectItem>
-              <SelectItem value="ALTA">Alta</SelectItem>
-            </Select>
-          </div>
-
-          <div className="md:flex hidden flex-col flex-1 gap-2">
-            <div className="flex justify-between items-center gap-2">
-              <div className="flex items-center gap-2">
-                <HeartPulse className="w-4 h-4 text-gray-500" />{' '}
-                <span className="text-gray-500 text-sm">Servicio</span>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="servicio"
-                      name="servicio"
-                      value="servicio"
-                      checked={searchFilterBy === 'servicio'}
-                      onClick={() => handleSetSearchFilteryBy('servicio')}
-                    />
-                    <label htmlFor="servicio" className="text-gray-500 text-sm">
-                      Servicio
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="departamento"
-                      name="departamento"
-                      value="departamento"
-                      checked={searchFilterBy === 'departamento'}
-                      onClick={() => handleSetSearchFilteryBy('departamento')}
-                    />
-                    <label
-                      htmlFor="departamento"
-                      className="text-gray-500 text-sm"
-                    >
-                      Departamento
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div ref={contenedorRef} className="flex-col">
-              <TextField
-                value={searchFilter}
-                onClick={handleInputClick}
-                onChange={(value) => setSearchFilter(value)}
-                placeholder="Buscar..."
-              />
-              <div className="relative">
-                {abierto &&
-                  (searchFilterBy === 'servicio'
-                    ? filterByServicio()
-                    : searchFilterBy === 'departamento'
-                      ? filterByDepartamento()
-                      : null)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-0 md:gap-6">
+    <div className="min-h-scree bg-gray-50 text-gray-600">
+      <div className="flex flex-col mx-auto p-0 md:p-4">
+        <InterconsultaFilters
+          abierto={abierto}
+          setAbierto={setAbierto}
+          handleInputClick={handleInputClick}
+          filtros={filtros}
+          setFiltros={handleSetFilters}
+          searchFilter={searchFilter}
+          setSearchFilter={setSearchFilter}
+          searchFilterBy={searchFilterBy}
+          setSearchFilterBy={handleSetSearchFilteryBy}
+          filterByServicio={filterByServicio}
+          filterByDepartamento={filterByDepartamento}
+        />
+        <div className="flex flex-col gap-0 md:gap-6 mt-4">
           <CollapsibleSection
             title="Interconsultas Enviadas"
             count={interconsultasEnviadasQuery.data?.length || 0}
@@ -383,25 +262,21 @@ const Home: FC = () => {
                 No hay interconsultas enviadas para mostrar
               </div>
             ) : (
-              <div className="space-y-4">
-                {interconsultasEnviadasQuery.data?.map((interconsulta) =>
-                  interconsulta ? (
-                    <InterconsultaCard
-                      key={interconsulta._id}
-                      interconsulta={interconsulta}
-                      onStatusChange={() =>
-                        interconsultasEnviadasQuery.refetch()
-                      }
-                      loading={interconsultasEnviadasQuery.isLoading}
-                      error={interconsultasEnviadasQuery.error ? 'Error' : ''}
-                      interconsultasEnviadas={interconsultasEnviadasQuery.data}
-                      interconsultasRecibidas={
-                        interconsultasRecibidasQuery.data || []
-                      }
-                    />
-                  ) : null
-                )}
-              </div>
+              interconsultasEnviadasQuery.data?.map((interconsulta) =>
+                interconsulta ? (
+                  <InterconsultaCard
+                    key={interconsulta._id}
+                    interconsulta={interconsulta}
+                    onStatusChange={() => interconsultasEnviadasQuery.refetch()}
+                    loading={interconsultasEnviadasQuery.isLoading}
+                    error={interconsultasEnviadasQuery.error ? 'Error' : ''}
+                    interconsultasEnviadas={interconsultasEnviadasQuery.data}
+                    interconsultasRecibidas={
+                      interconsultasRecibidasQuery.data || []
+                    }
+                  />
+                ) : null
+              )
             )}
           </CollapsibleSection>
 

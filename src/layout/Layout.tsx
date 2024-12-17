@@ -7,6 +7,8 @@ import Drawer from '@/components/drawer/Drawer'
 import { Button } from '@/components/button/Button'
 import IconButton from '@/components/icon-button/IconButton'
 import { Tooltip } from 'react-tooltip'
+import ClickAwayListener from '@/components/click-away-listener/ClickAwayListener'
+import { toast, ToastContainer } from 'react-toastify'
 
 const jwt = require('jsonwebtoken')
 
@@ -14,7 +16,6 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter()
   const { user, token } = useConfig()
   const [open, setOpen] = useState(false)
-
   const decoded = jwt.decode(token)
 
   const navigationLinks = [
@@ -45,11 +46,11 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
                   key={link.href}
                   href={link.href}
                   className={`inline-flex items-center p-4 border-b-2 text-sm font-medium
-                      ${
-                        router.pathname === link.href
-                          ? 'border-blue-500 text-gray-900'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                      }`}
+                  ${
+                    router.pathname === link.href
+                      ? 'border-blue-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -61,41 +62,43 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
               icon={<Menu className="h-5 w-5 text-gray-500" />}
               onClick={() => setOpen(true)}
             />
-            <Drawer open={open}>
-              <div className="flex flex-col gap-2">
+            <ClickAwayListener onClickAway={() => setOpen(false)}>
+              <Drawer open={open}>
                 <div className="flex flex-col gap-2">
-                  {user && (
-                    <div className="flex justify-between">
-                      <div className="rounded-lg text-sm flex items-center gap-2">
-                        <User className="h-5 w-5 text-gray-500" />
-                        <div className="flex flex-col items-start">
-                          <div className="flex">
-                            <span className="font-medium text-gray-700">
-                              {user.nombre || user.email}
+                  <div className="flex flex-col gap-2">
+                    {user && (
+                      <div className="flex justify-between">
+                        <div className="rounded-lg text-sm flex items-center gap-2">
+                          <User className="h-5 w-5 text-gray-500" />
+                          <div className="flex flex-col items-start">
+                            <div className="flex">
+                              <span className="font-medium text-gray-700">
+                                {user.nombre || user.email}
+                              </span>
+                            </div>
+                            <span className="text-gray-500 text-xs">
+                              {decoded?.role || 'Usuario'}
                             </span>
                           </div>
-                          <span className="text-gray-500 text-xs">
-                            {decoded?.role || 'Usuario'}
-                          </span>
                         </div>
+                        <IconButton
+                          icon={<X className="h-5 w-5 text-gray-500" />}
+                          onClick={() => setOpen(false)}
+                        />
                       </div>
-                      <IconButton
-                        icon={<X className="h-5 w-5 text-gray-500" />}
-                        onClick={() => setOpen(false)}
-                      />
-                    </div>
-                  )}
+                    )}
+                  </div>
+                  <div className="flex">
+                    <Button
+                      text="Cerrar sesión"
+                      variant="secondary"
+                      style="flex-1"
+                      onClick={() => handleLogout()}
+                    />
+                  </div>
                 </div>
-                <div className="flex">
-                  <Button
-                    text="Cerrar sesión"
-                    variant="secondary"
-                    style="flex-1"
-                    onClick={() => handleLogout()}
-                  />
-                </div>
-              </div>
-            </Drawer>
+              </Drawer>
+            </ClickAwayListener>
           </div>
           <div className="hidden md:block gap">
             {user && (
@@ -147,7 +150,14 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
       </nav>
 
       {/* Contenido principal */}
-      <main className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 py-6">
+      <main className="max-w-7xl mx-auto px-0 md:px-4 lg:px-8 py-4">
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          style={{
+            marginTop: '1rem',
+          }}
+        />
         {children}
       </main>
     </div>

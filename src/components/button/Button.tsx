@@ -1,7 +1,7 @@
 import { FC, HTMLAttributes, ReactNode } from 'react'
 
 type ButtonProps = {
-  variant?: 'primary' | 'secondary' | 'danger'
+  variant?: 'primary' | 'secondary' | 'danger' | 'text'
   type?: 'button' | 'submit' | 'reset'
   onClick?: (e?: any) => void
   text: string
@@ -20,6 +20,8 @@ const Button: FC<ButtonProps> = (props) => {
         return 'bg-gray-200 hover:bg-gray-300'
       case 'danger':
         return 'bg-red-500 hover:bg-red-600 text-white'
+      case 'text':
+        return 'text-gray-500 hover:text-gray-600'
       default:
         return 'bg-blue-500 hover:bg-blue-600 text-white'
     }
@@ -27,11 +29,7 @@ const Button: FC<ButtonProps> = (props) => {
   return (
     <button
       type={type || 'button'}
-      className={
-        'flex items-center justify-center text-center gap-2 px-4 py-2 rounded-md transition-colors ' +
-        getVariant() +
-        ` ${style}`
-      }
+      className={`flex items-center justify-center text-center gap-2 px-4 py-2 rounded-md transition-colors ${getVariant()} ${style}`}
       onClick={onClick}
     >
       {icon}

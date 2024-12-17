@@ -1,5 +1,11 @@
 import { useState, useEffect, FC, useRef } from 'react'
-import { Activity, AlertTriangle, FileCheck, HeartPulse } from 'lucide-react'
+import {
+  Activity,
+  AlertTriangle,
+  FileCheck,
+  Filter,
+  HeartPulse,
+} from 'lucide-react'
 import { Select, SelectItem } from '@/components/select/Select'
 import { Usuario } from '@/types/Usuario'
 import { Interconsulta } from '@/types/Interconsulta'
@@ -11,11 +17,11 @@ import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import CollapsibleSection from '@/components/collapsible-section/CollapsibleSection'
 import { useConfig } from '@/config/ConfigProvider'
 import Spinner from '@/components/spinner/Spinner'
-import TextField from '@/components/text-field/TextField'
 import departamentoEndpoints from '@/lib/endpoints/departamentoEndpoints'
 import { Deparatamento } from '@/types/Deparatamento'
 import normalizeText from '@/helpers/normalizeText'
-import ClickAwayListener from '@/components/click-away-listener/ClickAwayListener'
+import InterconsultaFilters from '@/components/interconsulta-filters/InterconsultaFIlters'
+import { Button } from '@/components/button/Button'
 const jwt = require('jsonwebtoken')
 
 const Home: FC = () => {
@@ -79,6 +85,25 @@ const Home: FC = () => {
       return getInterconsultas(query)
     },
   })
+
+  useEffect(() => {
+    if (!('Notification' in window)) {
+      alert('This browser does not support desktop notification')
+    } else if (Notification.permission === 'granted') {
+      const notification = new Notification('Nueva interconsulta', {
+        body: 'Se ha creado una nueva interconsulta',
+      })
+      // …
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          const notification = new Notification('Nueva interconsulta', {
+            body: 'Se ha creado una nueva interconsulta',
+          })
+        }
+      })
+    }
+  }, [])
 
   useEffect(() => {
     if (user && decoded?.role !== 'ADMIN') {
@@ -212,162 +237,22 @@ const Home: FC = () => {
   }
 
   return (
-    <div className="min-h-screen text-black bg-gray-50">
-      <div className="container mx-auto p-0 md:p-4">
-        <div className="md:hidden flex flex-col gap-2 px-4 mb-4">
-          <div className="flex justify-between items-center gap-2">
-            <div className="flex items-center gap-2">
-              <HeartPulse className="w-4 h-4 text-gray-500" />{' '}
-              <span className="text-gray-500 text-sm">Servicio</span>
-            </div>
-            <div className="flex gap-2">
-              <div className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  id="servicio"
-                  name="searchByMobile"
-                  value="servicio"
-                  checked={searchFilterBy === 'servicio'}
-                  onChange={() => handleSetSearchFilteryBy('servicio')}
-                />
-                <label htmlFor="servicio" className="text-gray-500 text-sm">
-                  Servicio
-                </label>
-              </div>
-              <div className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  id="departamento"
-                  name="searchByMobile"
-                  value="departamento"
-                  checked={searchFilterBy === 'departamento'}
-                  onChange={() => handleSetSearchFilteryBy('departamento')}
-                />
-                <label htmlFor="departamento" className="text-gray-500 text-sm">
-                  Departamento
-                </label>
-              </div>
-            </div>
-          </div>
-          <ClickAwayListener onClickAway={() => setAbierto(false)}>
-            <div className="flex-col">
-              <TextField
-                value={searchFilter}
-                onClick={handleInputClick}
-                onChange={(value) => setSearchFilter(value)}
-                placeholder="Buscar..."
-              />
-              <div className="relative">
-                {abierto &&
-                  (searchFilterBy === 'servicio'
-                    ? filterByServicio()
-                    : searchFilterBy === 'departamento'
-                      ? filterByDepartamento()
-                      : null)}
-              </div>
-            </div>
-          </ClickAwayListener>
-        </div>
-        <div className="mb-6 flex gap-4 mx-4 md:mx-0">
-          <div className="flex-1 flex flex-col">
-            <div className="flex justify-start items-center gap-2">
-              <FileCheck className="w-4 h-4 text-gray-500" />{' '}
-              <span className="text-gray-500 text-sm">Estado</span>
-            </div>
-            <Select
-              value={filtros.estado}
-              onChange={(e) => handleSetFilters('estado', e.target.value)}
-            >
-              <SelectItem value="todos" selected={filtros.estado === ''}>
-                Todos
-              </SelectItem>
-              <SelectItem value="PENDIENTE">Pendientes</SelectItem>
-              <SelectItem value="EN_PROCESO">En proceso</SelectItem>
-              <SelectItem value="COMPLETADA">Completadas</SelectItem>
-              <SelectItem value="CANCELADA">Canceladas</SelectItem>
-            </Select>
-          </div>
-
-          <div className="flex-1 flex flex-col">
-            <div className="flex justify-start items-center gap-2">
-              <Activity className="w-4 h-4 text-gray-500" />{' '}
-              <span className="text-gray-500 text-sm">Prioridad</span>
-            </div>
-            <Select
-              value={filtros.prioridad}
-              onChange={(e) => handleSetFilters('prioridad', e.target.value)}
-            >
-              <SelectItem value="todos" selected={filtros.prioridad === ''}>
-                Todas
-              </SelectItem>
-              <SelectItem value="BAJA">Baja</SelectItem>
-              <SelectItem value="MEDIA">Media</SelectItem>
-              <SelectItem value="ALTA">Alta</SelectItem>
-            </Select>
-          </div>
-
-          <div className="md:flex hidden flex-col flex-1 gap-2">
-            <div className="flex justify-between items-center gap-2">
-              <div className="flex items-center gap-2">
-                <HeartPulse className="w-4 h-4 text-gray-500" />{' '}
-                <span className="text-gray-500 text-sm">Servicio</span>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="servicio"
-                      name="searchBy"
-                      value="servicio"
-                      checked={searchFilterBy === 'servicio'}
-                      onChange={() => handleSetSearchFilteryBy('servicio')}
-                    />
-                    <label htmlFor="servicio" className="text-gray-500 text-sm">
-                      Servicio
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      id="departamento"
-                      name="searchBy"
-                      value="departamento"
-                      checked={searchFilterBy === 'departamento'}
-                      onChange={() => handleSetSearchFilteryBy('departamento')}
-                    />
-                    <label
-                      htmlFor="departamento"
-                      className="text-gray-500 text-sm"
-                    >
-                      Departamento
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ClickAwayListener onClickAway={() => setAbierto(false)}>
-              <div className="flex-col">
-                <TextField
-                  value={searchFilter}
-                  onClick={handleInputClick}
-                  onChange={(value) => setSearchFilter(value)}
-                  placeholder="Buscar..."
-                />
-                <div className="relative">
-                  {abierto &&
-                    (searchFilterBy === 'servicio'
-                      ? filterByServicio()
-                      : searchFilterBy === 'departamento'
-                        ? filterByDepartamento()
-                        : null)}
-                </div>
-              </div>
-            </ClickAwayListener>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-0 md:gap-6">
+    <div className="min-h-scree bg-gray-50 text-gray-600">
+      <div className="flex flex-col mx-auto p-0 md:p-4">
+        <InterconsultaFilters
+          abierto={abierto}
+          setAbierto={setAbierto}
+          handleInputClick={handleInputClick}
+          filtros={filtros}
+          setFiltros={handleSetFilters}
+          searchFilter={searchFilter}
+          setSearchFilter={setSearchFilter}
+          searchFilterBy={searchFilterBy}
+          setSearchFilterBy={handleSetSearchFilteryBy}
+          filterByServicio={filterByServicio}
+          filterByDepartamento={filterByDepartamento}
+        />
+        <div className="flex flex-col gap-0 md:gap-6 mt-4">
           <CollapsibleSection
             title="Interconsultas Enviadas"
             count={interconsultasEnviadasQuery.data?.length || 0}

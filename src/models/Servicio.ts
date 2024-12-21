@@ -72,6 +72,7 @@ const servicioSchema = new Schema<ServicioShema>(
     },
   },
   {
+    collection: 'interconsultas',
     timestamps: true, // Automatically manages createdAt and updatedAt fields
   }
 )

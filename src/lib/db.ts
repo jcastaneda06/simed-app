@@ -18,10 +18,10 @@ export async function connectToDatabase() {
   }
 
   if (!cached.promise) {
-    const uri = process.env.MONGODB_URI // MongoDB connection string
+    const uri = process.env.INTERCONSULTAS_CONNTECTIONSTRING // MongoDB connection string
     if (!uri) {
       throw new Error(
-        'Please define the MONGODB_URI environment variable inside .env.local'
+        'Please define the INTERCONSULTAS_CONNTECTIONSTRING environment variable inside .env.local'
       )
     }
 

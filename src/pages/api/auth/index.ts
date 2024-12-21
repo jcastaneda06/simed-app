@@ -35,7 +35,7 @@ export default async function handler(
 
       case 'GET': {
         const usuarios = await fetchAllUsuarios()
-        return res.status(200).json({ exito: true, usuarios })
+        return res.status(200).json(usuarios)
       }
 
       case 'PATCH': {

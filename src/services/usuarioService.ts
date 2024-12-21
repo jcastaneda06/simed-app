@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { connectToDatabase } from '../lib/db'
 
 // User Service Functions
-
+console.log('Servicio', Servicio)
 const loginUsuario = async (email: string, password: string) => {
   await connectToDatabase()
   const usuario = await Usuario.findOne({ email }).select('+password')
@@ -101,14 +101,13 @@ const updateUsuario = async (id: string, updates: any) => {
 
 const fetchAllUsuarios = async () => {
   await connectToDatabase()
-
   const usuarios = await Usuario.find().populate('servicio').select('-password')
   return usuarios.map((usuario) => ({
     id: usuario._id,
     nombre: usuario.nombre,
     email: usuario.email,
-    servicio: usuario.servicio,
     rol: usuario.rol,
+    servicio: usuario.servicio,
     activo: usuario.activo,
   }))
 }

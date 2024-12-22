@@ -101,15 +101,17 @@ const updateUsuario = async (id: string, updates: any) => {
 
 const fetchAllUsuarios = async () => {
   await connectToDatabase()
-  const usuarios = await Usuario.find().populate('servicio').select('-password')
-  return usuarios.map((usuario) => ({
-    id: usuario._id,
+  const usuarios = await Usuario.find().select('-password')
+  const mapped = usuarios.map((usuario) => ({
+    _id: usuario._id,
     nombre: usuario.nombre,
     email: usuario.email,
     rol: usuario.rol,
     servicio: usuario.servicio,
     activo: usuario.activo,
+    createdAt: usuario.createdAt,
   }))
+  return mapped
 }
 
 export {

@@ -34,7 +34,7 @@ const usuarioSchema = new mongoose.Schema(
     activo: { type: Boolean, default: true },
     ultimoAcceso: Date,
   },
-  { collection: 'interconsultas', timestamps: true }
+  { collection: 'usuarios', timestamps: true }
 )
 
 usuarioSchema.pre('save', async function (next) {

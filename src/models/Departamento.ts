@@ -18,7 +18,7 @@ const DepartamentoSchema = new Schema(
       },
     ],
   },
-  { collection: 'interconsultas' }
+  { collection: 'departamentos' }
 )
 
 export const Departamento =

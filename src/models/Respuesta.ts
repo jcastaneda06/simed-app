@@ -12,7 +12,7 @@ const respuestaSchema = new mongoose.Schema(
     createdAt: { type: Date, default: Date.now },
   },
   {
-    collection: 'interconsultas',
+    collection: 'respuestainterconsultas',
     timestamps: true,
   }
 )

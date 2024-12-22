@@ -11,6 +11,7 @@ import {
   Eye,
   Trash2,
 } from 'lucide-react'
+import moment from 'moment'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
@@ -231,7 +232,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                 {interconsulta.estado}
               </span>
               <span className="text-xs text-gray-500 text-end">
-                {formatFecha(interconsulta.fechaCreacion || '')}
+                {moment(interconsulta.fechaCreacion).format('DD/MM/YYYY')}
               </span>
               {expanded ? (
                 <ChevronUp className="h-5 w-5 text-gray-400" />

@@ -18,7 +18,6 @@ import { Button } from '../button/Button'
 import ConfirmDialog from '../confirm-dialog/ConfirmDialog'
 import Spinner from '../spinner/Spinner'
 import { Tooltip } from 'react-tooltip'
-import { useEdgeStore } from '@/lib/edgestore'
 const jwt = require('jsonwebtoken')
 
 type InterconsultaCardProps = {
@@ -160,15 +159,6 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   }
 
   if (
-    !interconsulta ||
-    !interconsulta.paciente ||
-    !interconsulta.servicioDestino ||
-    !interconsulta.servicioSolicitante
-  ) {
-    return null
-  }
-
-  if (
     loading &&
     interconsultasEnviadas.length === 0 &&
     interconsultasRecibidas.length === 0
@@ -181,6 +171,8 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
       </div>
     )
   }
+
+  console.log(interconsulta)
 
   if (error) {
     return (
@@ -223,10 +215,10 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                   HC: {interconsulta.paciente?.numeroHistoria}
                 </p>
                 <p className="text-sm text-gray-800">
-                  De: {interconsulta?.servicioSolicitante.nombre}
+                  De: {interconsulta?.servicioSolicitante?.nombre}
                 </p>
                 <p className="text-sm text-gray-800">
-                  Para: {interconsulta?.servicioDestino.nombre}
+                  Para: {interconsulta?.servicioDestino?.nombre}
                 </p>
               </div>
             </div>

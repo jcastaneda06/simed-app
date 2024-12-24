@@ -24,7 +24,6 @@ const usuarioSchema = new mongoose.Schema(
     servicio: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Servicio',
-      required: true,
     },
     rol: {
       type: String,
@@ -34,7 +33,7 @@ const usuarioSchema = new mongoose.Schema(
     activo: { type: Boolean, default: true },
     ultimoAcceso: Date,
   },
-  { timestamps: true }
+  { collection: 'usuarios', timestamps: true }
 )
 
 usuarioSchema.pre('save', async function (next) {

@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 import { connectToDatabase } from '../lib/db'
 
 // User Service Functions
-
+console.log('Servicio', Servicio)
 const loginUsuario = async (email: string, password: string) => {
   await connectToDatabase()
   const usuario = await Usuario.findOne({ email }).select('+password')
@@ -71,7 +71,7 @@ const deactivateUsuario = async (id: string) => {
   return usuario
 }
 
-const reactivateUsuario = async (id: string) => {
+const activateUsuario = async (id: string) => {
   await connectToDatabase()
 
   const usuario = await Usuario.findByIdAndUpdate(
@@ -101,23 +101,24 @@ const updateUsuario = async (id: string, updates: any) => {
 
 const fetchAllUsuarios = async () => {
   await connectToDatabase()
-
-  const usuarios = await Usuario.find().populate('servicio').select('-password')
-  return usuarios.map((usuario) => ({
-    id: usuario._id,
+  const usuarios = await Usuario.find().select('-password')
+  const mapped = usuarios.map((usuario) => ({
+    _id: usuario._id,
     nombre: usuario.nombre,
     email: usuario.email,
-    servicio: usuario.servicio,
     rol: usuario.rol,
+    servicio: usuario.servicio,
     activo: usuario.activo,
+    createdAt: usuario.createdAt,
   }))
+  return mapped
 }
 
 export {
   loginUsuario,
   registerUsuario,
   deactivateUsuario,
-  reactivateUsuario,
+  activateUsuario,
   updateUsuario,
   fetchAllUsuarios,
 }

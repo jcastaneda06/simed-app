@@ -43,7 +43,7 @@ const CollapsibleSection: FC<PropsWithChildren<CollapsibleSectionProps>> = (
           </div>
         </button>
         <div
-          className={` border-t border-gray-100 ${!isExpanded ? 'max-h-0' : 'max-h-[1000px]'} transition-all ease-in-out duration-500 overflow-hidden`}
+          className={`border-t border-gray-100 ${!isExpanded ? 'max-h-0' : 'max-h-[1000px]'} transition-all ease-in-out duration-500 overflow-hidden`}
         >
           {children}
         </div>

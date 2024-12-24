@@ -51,7 +51,7 @@ const InterconsultaFilters: FC<InterconsultaFiltersProps> = (props) => {
         />
       </div>
       <div
-        className={`${openFilters ? 'max-h-96' : 'max-h-0'} overflow-hidden transition-all duration-300  ${openFilters ? ' border-t border-b mt-4 py-4' : ''}`}
+        className={`${openFilters ? 'max-h-96' : 'max-h-0'} ${openFilters ? '' : 'overflow-hidden '}transition-all duration-300  ${openFilters ? ' border-t border-b mt-4 py-4' : ''}`}
       >
         <div className={`md:hidden flex flex-col gap-2 px-4 mb-4`}>
           <div className="flex justify-between items-center gap-2 ">

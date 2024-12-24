@@ -11,6 +11,7 @@ import {
   Eye,
   Trash2,
 } from 'lucide-react'
+import moment from 'moment'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
@@ -18,7 +19,6 @@ import { Button } from '../button/Button'
 import ConfirmDialog from '../confirm-dialog/ConfirmDialog'
 import Spinner from '../spinner/Spinner'
 import { Tooltip } from 'react-tooltip'
-import { useEdgeStore } from '@/lib/edgestore'
 const jwt = require('jsonwebtoken')
 
 type InterconsultaCardProps = {
@@ -160,15 +160,6 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
   }
 
   if (
-    !interconsulta ||
-    !interconsulta.paciente ||
-    !interconsulta.servicioDestino ||
-    !interconsulta.servicioSolicitante
-  ) {
-    return null
-  }
-
-  if (
     loading &&
     interconsultasEnviadas.length === 0 &&
     interconsultasRecibidas.length === 0
@@ -223,10 +214,10 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                   HC: {interconsulta.paciente?.numeroHistoria}
                 </p>
                 <p className="text-sm text-gray-800">
-                  De: {interconsulta?.servicioSolicitante.nombre}
+                  De: {interconsulta?.servicioSolicitante?.nombre}
                 </p>
                 <p className="text-sm text-gray-800">
-                  Para: {interconsulta?.servicioDestino.nombre}
+                  Para: {interconsulta?.servicioDestino?.nombre}
                 </p>
               </div>
             </div>
@@ -239,7 +230,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                 {interconsulta.estado}
               </span>
               <span className="text-xs text-gray-500 text-end">
-                {formatFecha(interconsulta.fechaCreacion || '')}
+                {moment(interconsulta.fechaCreacion).format('DD/MM/YYYY')}
               </span>
               {expanded ? (
                 <ChevronUp className="h-5 w-5 text-gray-400" />

@@ -51,16 +51,6 @@ const servicioSchema = new Schema<ServicioShema>(
     tipo: {
       type: String,
       required: [true, 'El tipo de servicio es requerido'],
-      enum: [
-        'MEDICINA_INTERNA',
-        'CIRUGIA',
-        'PEDIATRIA',
-        'GINECOLOGIA',
-        'CARDIOLOGIA',
-        'NEUROLOGIA',
-        'TRAUMATOLOGIA',
-        'PSIQUIATRIA',
-      ],
     },
     activo: {
       type: Boolean,
@@ -72,6 +62,7 @@ const servicioSchema = new Schema<ServicioShema>(
     },
   },
   {
+    collection: 'servicios',
     timestamps: true, // Automatically manages createdAt and updatedAt fields
   }
 )

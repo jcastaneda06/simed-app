@@ -41,7 +41,7 @@ const InterconsultaFilters: FC<InterconsultaFiltersProps> = (props) => {
   const [openFilters, setOpenFilters] = useState(false)
   return (
     <>
-      <div className="flex justify-end z-[9999]">
+      <div className="flex justify-end">
         <Button
           text="Mostrar filtros"
           icon={<Filter className="h-4 w-4" />}

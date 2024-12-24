@@ -173,8 +173,6 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     )
   }
 
-  console.log(interconsulta)
-
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">

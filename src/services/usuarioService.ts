@@ -71,7 +71,7 @@ const deactivateUsuario = async (id: string) => {
   return usuario
 }
 
-const reactivateUsuario = async (id: string) => {
+const activateUsuario = async (id: string) => {
   await connectToDatabase()
 
   const usuario = await Usuario.findByIdAndUpdate(
@@ -118,7 +118,7 @@ export {
   loginUsuario,
   registerUsuario,
   deactivateUsuario,
-  reactivateUsuario,
+  activateUsuario,
   updateUsuario,
   fetchAllUsuarios,
 }

@@ -24,7 +24,6 @@ const usuarioSchema = new mongoose.Schema(
     servicio: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Servicio',
-      required: true,
     },
     rol: {
       type: String,

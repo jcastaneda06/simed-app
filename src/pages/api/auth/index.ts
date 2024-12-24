@@ -6,16 +6,13 @@ import {
   updateUsuario,
   fetchAllUsuarios,
 } from '@/services/usuarioService'
-import { runCors } from '@/lib/cors'
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   try {
-    await runCors(req, res)
     if (req.method === 'OPTIONS') {
-      await runCors(req, res)
       return res.status(200).end()
     }
 

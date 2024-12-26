@@ -2,6 +2,7 @@ import { connectToDatabase } from '@/lib/db'
 import Servicio from '@/models/Servicio'
 
 export const getAllServices = async () => {
+  await connectToDatabase()
   const servicios = await Servicio.find({})
   return servicios
 }

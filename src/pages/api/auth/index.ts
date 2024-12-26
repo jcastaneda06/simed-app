@@ -5,6 +5,7 @@ import {
   deactivateUsuario,
   updateUsuario,
   fetchAllUsuarios,
+  deleteUsuario,
 } from '@/services/usuarioService'
 
 export default async function handler(
@@ -38,6 +39,13 @@ export default async function handler(
     if (req.method === 'GET') {
       const usuarios = await fetchAllUsuarios()
       return res.status(200).json(usuarios)
+    }
+
+    if (req.method === 'DELETE') {
+      const { id } = req.query
+      const result = await deleteUsuario(id as string)
+
+      return res.status(200).json(result)
     }
 
     return res

@@ -114,6 +114,16 @@ const fetchAllUsuarios = async () => {
   return mapped
 }
 
+const deleteUsuario = async (id: string) => {
+  await connectToDatabase()
+  const usuario = await Usuario.findByIdAndDelete(id)
+  if (!usuario) {
+    throw new Error('Usuario no encontrado')
+  }
+
+  return usuario
+}
+
 export {
   loginUsuario,
   registerUsuario,
@@ -121,4 +131,5 @@ export {
   activateUsuario,
   updateUsuario,
   fetchAllUsuarios,
+  deleteUsuario,
 }

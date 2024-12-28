@@ -2,9 +2,34 @@ import Servicio from '@/models/Servicio' //Antes no estaba importado
 import Usuario from '@/models/Usuario'
 import jwt from 'jsonwebtoken'
 import { connectToDatabase } from '../lib/db'
+import { Usuario as UsuarioType } from '@/types/Usuario'
 
 // User Service Functions
 console.log('Servicio', Servicio)
+const fetchAllUsuarios = async () => {
+  await connectToDatabase()
+  const usuarios = await Usuario.find().select('-password')
+  const mapped = usuarios.map((usuario) => ({
+    _id: usuario._id,
+    nombre: usuario.nombre,
+    email: usuario.email,
+    rol: usuario.rol,
+    servicio: usuario.servicio,
+    activo: usuario.activo,
+    createdAt: usuario.createdAt,
+  }))
+  return mapped
+}
+
+const getUsuarioById = async (id: string) => {
+  await connectToDatabase()
+  const usuario = await Usuario.findById(id).select('-password')
+  if (!usuario) {
+    throw new Error('Usuario no encontrado')
+  }
+
+  return usuario
+}
 const loginUsuario = async (email: string, password: string) => {
   await connectToDatabase()
   const usuario = await Usuario.findOne({ email }).select('+password')
@@ -86,10 +111,10 @@ const activateUsuario = async (id: string) => {
   return usuario
 }
 
-const updateUsuario = async (id: string, updates: any) => {
+const updateUsuario = async (user: UsuarioType) => {
   await connectToDatabase()
 
-  const usuario = await Usuario.findByIdAndUpdate(id, updates, {
+  const usuario = await Usuario.findByIdAndUpdate(user._id, user, {
     new: true,
   }).populate('servicio')
   if (!usuario) {
@@ -97,21 +122,6 @@ const updateUsuario = async (id: string, updates: any) => {
   }
 
   return usuario
-}
-
-const fetchAllUsuarios = async () => {
-  await connectToDatabase()
-  const usuarios = await Usuario.find().select('-password')
-  const mapped = usuarios.map((usuario) => ({
-    _id: usuario._id,
-    nombre: usuario.nombre,
-    email: usuario.email,
-    rol: usuario.rol,
-    servicio: usuario.servicio,
-    activo: usuario.activo,
-    createdAt: usuario.createdAt,
-  }))
-  return mapped
 }
 
 const deleteUsuario = async (id: string) => {
@@ -125,11 +135,12 @@ const deleteUsuario = async (id: string) => {
 }
 
 export {
+  fetchAllUsuarios,
+  getUsuarioById,
   loginUsuario,
   registerUsuario,
   deactivateUsuario,
   activateUsuario,
   updateUsuario,
-  fetchAllUsuarios,
   deleteUsuario,
 }

@@ -7,6 +7,7 @@ import {
   fetchAllUsuarios,
   deleteUsuario,
 } from '@/services/usuarioService'
+import { Usuario } from '@/types/Usuario'
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,6 +16,11 @@ export default async function handler(
   try {
     if (req.method === 'OPTIONS') {
       return res.status(200).end()
+    }
+
+    if (req.method === 'GET') {
+      const usuarios = await fetchAllUsuarios()
+      return res.status(200).json(usuarios)
     }
 
     if (req.method === 'POST') {
@@ -36,9 +42,11 @@ export default async function handler(
       }
     }
 
-    if (req.method === 'GET') {
-      const usuarios = await fetchAllUsuarios()
-      return res.status(200).json(usuarios)
+    if (req.method === 'PUT') {
+      const user = req.body as Usuario
+      const result = await updateUsuario(user)
+
+      return res.status(200).json(result)
     }
 
     if (req.method === 'DELETE') {

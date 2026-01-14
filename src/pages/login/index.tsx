@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 import userEndpoints from '@/lib/endpoints/userEndpoints'
 import { useMutation } from '@tanstack/react-query'
 import { LoginResult, Usuario } from '@/types/Usuario'
@@ -134,6 +135,16 @@ export default function Login() {
             </button>
           </div>
         </form>
+
+        <div className="text-center text-sm">
+          <span className="text-gray-600">¿No tiene una cuenta? </span>
+          <Link
+            href="/registro"
+            className="text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Registrarse
+          </Link>
+        </div>
       </div>
     </div>
   )

@@ -134,7 +134,9 @@ const RespuestaVirtual: FC = () => {
       <div className="min-h-screen bg-muted/30">
         <div className="container mx-auto p-4">
           <Alert variant="destructive">
-            <AlertDescription>{interconsultaQuery.error.message}</AlertDescription>
+            <AlertDescription>
+              {interconsultaQuery.error.message}
+            </AlertDescription>
           </Alert>
         </div>
       </div>

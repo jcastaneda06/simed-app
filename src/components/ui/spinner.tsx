@@ -1,15 +1,15 @@
-import { cn } from "@/lib/cn"
+import { cn } from '@/lib/cn'
 
 interface SpinnerProps {
   className?: string
-  size?: "sm" | "md" | "lg"
+  size?: 'sm' | 'md' | 'lg'
 }
 
-const Spinner = ({ className, size = "md" }: SpinnerProps) => {
+const Spinner = ({ className, size = 'md' }: SpinnerProps) => {
   const sizeClasses = {
-    sm: "w-4 h-4",
-    md: "w-8 h-8",
-    lg: "w-12 h-12",
+    sm: 'w-4 h-4',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12',
   }
 
   return (
@@ -17,7 +17,7 @@ const Spinner = ({ className, size = "md" }: SpinnerProps) => {
       <svg
         aria-hidden="true"
         className={cn(
-          "animate-spin text-muted fill-primary",
+          'animate-spin text-muted fill-primary',
           sizeClasses[size],
           className
         )}

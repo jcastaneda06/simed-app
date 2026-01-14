@@ -296,7 +296,9 @@ const Home: FC = () => {
                         }
                         loading={interconsultasEnviadasQuery.isLoading}
                         error={interconsultasEnviadasQuery.error ? 'Error' : ''}
-                        interconsultasEnviadas={interconsultasEnviadasQuery.data}
+                        interconsultasEnviadas={
+                          interconsultasEnviadasQuery.data
+                        }
                         interconsultasRecibidas={
                           interconsultasRecibidasQuery.data || []
                         }
@@ -328,7 +330,9 @@ const Home: FC = () => {
                       interconsultasEnviadas={
                         interconsultasEnviadasQuery.data || []
                       }
-                      interconsultasRecibidas={interconsultasRecibidasQuery.data}
+                      interconsultasRecibidas={
+                        interconsultasRecibidasQuery.data
+                      }
                     />
                   ))}
                 </div>

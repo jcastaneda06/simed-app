@@ -280,7 +280,10 @@ const CrearInterconsulta = () => {
             <div className="space-y-2">
               <Label>Servicio Solicitante</Label>
               <Select
-                value={formData.servicioSolicitante._id || formData.servicioSolicitante}
+                value={
+                  formData.servicioSolicitante._id ||
+                  formData.servicioSolicitante
+                }
                 onValueChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -446,7 +449,9 @@ const CrearInterconsulta = () => {
 
         {/* Antecedentes */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">Antecedentes</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            Antecedentes
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Antecedentes Personales</Label>

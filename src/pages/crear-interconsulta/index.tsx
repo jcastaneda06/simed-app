@@ -5,9 +5,19 @@ import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { Interconsulta } from '@/types/Interconsulta'
 import { useConfig } from '@/config/ConfigProvider'
 import { useEdgeStore } from '@/lib/edgestore'
-import { Button } from '@/components/button/Button'
-import Spinner from '@/components/spinner/Spinner'
-import IconButton from '@/components/icon-button/IconButton'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Spinner } from '@/components/ui/spinner'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useRouter } from 'next/router'
 import servicioEndpoints from '@/lib/endpoints/servicioEndpoints'
 import { Servicio } from '@/types/Servicio'
@@ -203,71 +213,60 @@ const CrearInterconsulta = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 px-4">
+      <h1 className="text-2xl font-bold text-foreground px-4">
         Crear Nueva Interconsulta
       </h1>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-          <div className="flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            <span>{error}</span>
-          </div>
-        </div>
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-          Interconsulta creada exitosamente
-        </div>
+        <Alert className="bg-green-50 border-green-200 text-green-800">
+          <AlertDescription>Interconsulta creada exitosamente</AlertDescription>
+        </Alert>
       )}
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 bg-white shadow-sm rounded-lg p-6"
+        className="space-y-6 bg-background shadow-sm rounded-lg p-6"
       >
         {/* Datos del Paciente */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Datos del Paciente
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Nombre
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>Nombre</Label>
+              <Input
                 type="text"
                 name="nombre"
                 value={formData.paciente.nombre}
                 onChange={(e) => handleChange(e, 'paciente')}
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Edad
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>Edad</Label>
+              <Input
                 type="number"
                 name="edad"
                 value={formData.paciente.edad}
                 onChange={(e) => handleChange(e, 'paciente')}
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                N° de Historia Clínica
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>N° de Historia Clínica</Label>
+              <Input
                 type="text"
                 name="numeroHistoria"
                 value={formData.paciente.numeroHistoria}
                 onChange={(e) => handleChange(e, 'paciente')}
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
@@ -276,69 +275,65 @@ const CrearInterconsulta = () => {
 
         {/* Servicios */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Servicios</h2>
+          <h2 className="text-lg font-semibold text-foreground">Servicios</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Servicio Solicitante
-              </label>
-              <select
-                name="servicioSolicitante"
-                value={formData.servicioSolicitante}
-                onChange={(e) =>
+            <div className="space-y-2">
+              <Label>Servicio Solicitante</Label>
+              <Select
+                value={formData.servicioSolicitante._id || formData.servicioSolicitante}
+                onValueChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
-                    servicioSolicitante: e.target.value,
+                    servicioSolicitante: value,
                   }))
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
-                required
               >
-                <option value="">Seleccione un servicio</option>
-                {servicios.map((servicio) => (
-                  <option key={servicio._id} value={servicio._id}>
-                    {servicio.nombre}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione un servicio" />
+                </SelectTrigger>
+                <SelectContent>
+                  {servicios.map((servicio) => (
+                    <SelectItem key={servicio._id} value={servicio._id}>
+                      {servicio.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Servicio Destino
-              </label>
-              <select
-                name="servicioDestino"
-                value={formData.servicioDestino}
-                onChange={(e) =>
+            <div className="space-y-2">
+              <Label>Servicio Destino</Label>
+              <Select
+                value={formData.servicioDestino._id || formData.servicioDestino}
+                onValueChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
-                    servicioDestino: e.target.value,
+                    servicioDestino: value,
                   }))
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
-                required
               >
-                <option value="">Seleccione un servicio</option>
-                {servicios.map((servicio) => (
-                  <option key={servicio._id} value={servicio._id}>
-                    {servicio.nombre}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione un servicio" />
+                </SelectTrigger>
+                <SelectContent>
+                  {servicios.map((servicio) => (
+                    <SelectItem key={servicio._id} value={servicio._id}>
+                      {servicio.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
 
         {/* Detalles de la Interconsulta */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Detalles de la Interconsulta
           </h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Objetivo de la Consulta
-            </label>
-            <textarea
+          <div className="space-y-2">
+            <Label>Objetivo de la Consulta</Label>
+            <Textarea
               name="objetivoConsulta"
               value={formData.objetivoConsulta}
               onChange={(e) =>
@@ -348,15 +343,12 @@ const CrearInterconsulta = () => {
                 }))
               }
               rows={3}
-              className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Historia Clínica
-            </label>
-            <textarea
+          <div className="space-y-2">
+            <Label>Historia Clínica</Label>
+            <Textarea
               name="historiaClinica"
               value={formData.historiaClinica}
               onChange={(e) =>
@@ -366,7 +358,6 @@ const CrearInterconsulta = () => {
                 }))
               }
               rows={3}
-              className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               required
             />
           </div>
@@ -374,58 +365,47 @@ const CrearInterconsulta = () => {
 
         {/* Estado Clínico */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Estado Clínico
           </h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Evaluación Subjetiva
-            </label>
-            <textarea
+          <div className="space-y-2">
+            <Label>Evaluación Subjetiva</Label>
+            <Textarea
               name="subjetivo"
               value={formData.estadoClinico.subjetivo}
               onChange={(e) => handleChange(e, 'estadoClinico')}
               rows={3}
-              className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               required
             />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Presión Arterial
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>Presión Arterial</Label>
+              <Input
                 type="text"
                 name="presionArterial"
                 value={formData.estadoClinico.signosVitales.presionArterial}
                 onChange={(e) =>
                   handleChange(e, 'estadoClinico', 'signosVitales')
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                FC
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>FC</Label>
+              <Input
                 type="text"
                 name="frecuenciaCardiaca"
                 value={formData.estadoClinico.signosVitales.frecuenciaCardiaca}
                 onChange={(e) =>
                   handleChange(e, 'estadoClinico', 'signosVitales')
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                FR
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>FR</Label>
+              <Input
                 type="text"
                 name="frecuenciaRespiratoria"
                 value={
@@ -434,37 +414,30 @@ const CrearInterconsulta = () => {
                 onChange={(e) =>
                   handleChange(e, 'estadoClinico', 'signosVitales')
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Temperatura
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>Temperatura</Label>
+              <Input
                 type="text"
                 name="temperatura"
                 value={formData.estadoClinico.signosVitales.temperatura}
                 onChange={(e) =>
                   handleChange(e, 'estadoClinico', 'signosVitales')
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                SatO2
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label>SatO2</Label>
+              <Input
                 type="text"
                 name="saturacionOxigeno"
                 value={formData.estadoClinico.signosVitales.saturacionOxigeno}
                 onChange={(e) =>
                   handleChange(e, 'estadoClinico', 'signosVitales')
                 }
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                 required
               />
             </div>
@@ -473,13 +446,11 @@ const CrearInterconsulta = () => {
 
         {/* Antecedentes */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Antecedentes</h2>
+          <h2 className="text-lg font-semibold text-foreground">Antecedentes</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Antecedentes Personales
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label>Antecedentes Personales</Label>
+              <Textarea
                 name="antecedentesPersonales"
                 value={formData.antecedentesPersonales}
                 onChange={(e) =>
@@ -489,14 +460,11 @@ const CrearInterconsulta = () => {
                   }))
                 }
                 rows={3}
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Antecedentes Familiares
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label>Antecedentes Familiares</Label>
+              <Textarea
                 name="antecedentesFamiliares"
                 value={formData.antecedentesFamiliares}
                 onChange={(e) =>
@@ -506,7 +474,6 @@ const CrearInterconsulta = () => {
                   }))
                 }
                 rows={3}
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               />
             </div>
           </div>
@@ -514,46 +481,37 @@ const CrearInterconsulta = () => {
 
         {/* Alergias y Medicamentos */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Alergias y Medicamentos
           </h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Alergias
-            </label>
-            <textarea
+          <div className="space-y-2">
+            <Label>Alergias</Label>
+            <Textarea
               name="alergias"
               value={formData.alergias}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, alergias: e.target.value }))
               }
               rows={2}
-              className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Medicamentos Pre-hospitalarios
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label>Medicamentos Pre-hospitalarios</Label>
+              <Textarea
                 name="preHospitalarios"
                 value={formData.medicamentos.preHospitalarios}
                 onChange={(e) => handleChange(e, 'medicamentos')}
                 rows={3}
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Medicamentos Hospitalarios
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label>Medicamentos Hospitalarios</Label>
+              <Textarea
                 name="hospitalarios"
                 value={formData.medicamentos.hospitalarios}
                 onChange={(e) => handleChange(e, 'medicamentos')}
                 rows={3}
-                className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
               />
             </div>
           </div>
@@ -561,80 +519,65 @@ const CrearInterconsulta = () => {
 
         {/* Laboratorios e Imagenología */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-foreground">
             Estudios Complementarios
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h3 className="text-md font-medium text-gray-800 mb-2">
+              <h3 className="text-md font-medium text-foreground mb-2">
                 Laboratorios
               </h3>
               <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Resultados
-                  </label>
-                  <textarea
+                <div className="space-y-2">
+                  <Label>Resultados</Label>
+                  <Textarea
                     name="resultados"
                     value={formData.laboratorios.resultados}
                     onChange={(e) => handleChange(e, 'laboratorios')}
                     rows={3}
-                    className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Observaciones
-                  </label>
-                  <textarea
+                <div className="space-y-2">
+                  <Label>Observaciones</Label>
+                  <Textarea
                     name="observaciones"
                     value={formData.laboratorios.observaciones}
                     onChange={(e) => handleChange(e, 'laboratorios')}
                     rows={2}
-                    className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="text-md font-medium text-gray-800 mb-2">
+              <h3 className="text-md font-medium text-foreground mb-2">
                 Imagenología
               </h3>
               <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Tipo de Estudio
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label>Tipo de Estudio</Label>
+                  <Input
                     type="text"
                     name="tipo"
                     value={formData.imagenologia.tipo}
                     onChange={(e) => handleChange(e, 'imagenologia')}
-                    className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Descripción
-                  </label>
-                  <textarea
+                <div className="space-y-2">
+                  <Label>Descripción</Label>
+                  <Textarea
                     name="descripcion"
                     value={formData.imagenologia.descripcion}
                     onChange={(e) => handleChange(e, 'imagenologia')}
                     rows={2}
-                    className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Hallazgos Relevantes
-                  </label>
-                  <textarea
+                <div className="space-y-2">
+                  <Label>Hallazgos Relevantes</Label>
+                  <Textarea
                     name="hallazgosRelevantes"
                     value={formData.imagenologia.hallazgosRelevantes}
                     onChange={(e) => handleChange(e, 'imagenologia')}
                     rows={2}
-                    className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
                   />
                 </div>
               </div>
@@ -643,23 +586,23 @@ const CrearInterconsulta = () => {
         </div>
 
         {/* Prioridad */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Prioridad
-          </label>
-          <select
-            name="prioridad"
+        <div className="space-y-2">
+          <Label>Prioridad</Label>
+          <Select
             value={formData.prioridad}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, prioridad: e.target.value }))
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, prioridad: value }))
             }
-            className="mt-1 block w-full rounded-md border border-gray-300 text-black px-3 py-2"
-            required
           >
-            <option value="ALTA">Alta</option>
-            <option value="MEDIA">Media</option>
-            <option value="BAJA">Baja</option>
-          </select>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALTA">Alta</SelectItem>
+              <SelectItem value="MEDIA">Media</SelectItem>
+              <SelectItem value="BAJA">Baja</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Botón de envío */}
@@ -687,18 +630,22 @@ const CrearInterconsulta = () => {
             {!loading ? (
               <>
                 {attachment && (
-                  <IconButton
-                    variant="danger"
-                    icon={<X />}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
                     onClick={() => setAttachment(undefined)}
-                  />
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 )}
                 <label
                   htmlFor="attach"
-                  className="text-black hover:bg-gray-100 px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 w-44"
+                  className="text-foreground hover:bg-muted px-4 py-2 rounded-md cursor-pointer flex items-center gap-2 w-44"
                 >
                   <div className="h-4 w-4">
-                    <Paperclip className="h-4 w-4 text-black" />
+                    <Paperclip className="h-4 w-4 text-foreground" />
                   </div>
                   <span className="truncate">
                     {attachment ? attachment.name : 'Adjuntar archivo'}
@@ -706,24 +653,25 @@ const CrearInterconsulta = () => {
                 </label>
               </>
             ) : (
-              <div className="flex  items-center gap-2">
-                <div className="w-44 h-2 border-2 rounded border-gray-300 flex items-center">
+              <div className="flex items-center gap-2">
+                <div className="w-44 h-2 border-2 rounded border-border flex items-center">
                   <div
-                    className="h-2 rounded bg-gray-300 transition-all ease-in-out"
+                    className="h-2 rounded bg-primary transition-all ease-in-out"
                     style={{
                       width: `${uploadProgress}%`,
                     }}
                   ></div>
                 </div>
-                <span className="text-black font-bold">{uploadProgress}%</span>
+                <span className="text-foreground font-bold">
+                  {uploadProgress}%
+                </span>
               </div>
             )}
           </div>
-          <Button
-            text={loading ? 'Creando...' : 'Crear Interconsulta'}
-            type="submit"
-            icon={loading ? <Spinner /> : null}
-          />
+          <Button type="submit" disabled={loading}>
+            {loading && <Spinner size="sm" className="mr-2" />}
+            {loading ? 'Creando...' : 'Crear Interconsulta'}
+          </Button>
         </div>
       </form>
     </div>

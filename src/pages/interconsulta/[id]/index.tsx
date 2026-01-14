@@ -5,7 +5,9 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
 import { RespuestaInterconsulta } from '@/types/Interconsulta'
-import { Button } from '@/components/button/Button'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useReactToPrint } from 'react-to-print'
 import { getDownloadUrl } from '@edgestore/react/utils'
 
@@ -118,63 +120,63 @@ const RespuestaVirtual: FC = () => {
 
   if (interconsultaQuery.isLoading)
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-muted/30">
         <div className="container mx-auto p-4">
-          <div className="text-center py-6">Cargando interconsulta...</div>
+          <div className="text-center py-6 text-muted-foreground">
+            Cargando interconsulta...
+          </div>
         </div>
       </div>
     )
 
   if (interconsultaQuery.error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-muted/30">
         <div className="container mx-auto p-4">
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-            <div className="flex items-center">
-              <span>{interconsultaQuery.error.message}</span>
-            </div>
-          </div>
+          <Alert variant="destructive">
+            <AlertDescription>{interconsultaQuery.error.message}</AlertDescription>
+          </Alert>
         </div>
       </div>
     )
   }
 
   return (
-    <div ref={printRef} className="min-h-screen text-black bg-gray-50">
+    <div ref={printRef} className="min-h-screen text-foreground bg-muted/30">
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-semibold mb-6">
           Respuesta Virtual a la Interconsulta
         </h1>
 
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
+        <div className="bg-background p-6 rounded-lg shadow mb-6">
           <div className="flex items-center space-x-2 mb-4">
             <h2 className="text-xl font-semibold">
               {interconsulta?.paciente?.nombre || 'Nombre no disponible'}
             </h2>
             {interconsulta?.prioridad === 'ALTA' && (
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <p className="text-gray-700">
-              <span className="font-medium">HC:</span>{' '}
+            <p className="text-muted-foreground">
+              <span className="font-medium text-foreground">HC:</span>{' '}
               {interconsulta?.paciente?.numeroHistoria || 'No disponible'}
             </p>
-            <p className="text-gray-700">
-              <span className="font-medium">De:</span>{' '}
+            <p className="text-muted-foreground">
+              <span className="font-medium text-foreground">De:</span>{' '}
               {interconsulta?.servicioSolicitante?.nombre || 'No especificado'}
             </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Para:</span>{' '}
+            <p className="text-muted-foreground">
+              <span className="font-medium text-foreground">Para:</span>{' '}
               {interconsulta?.servicioDestino?.nombre || 'No especificado'}
             </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Prioridad:</span>{' '}
+            <p className="text-muted-foreground">
+              <span className="font-medium text-foreground">Prioridad:</span>{' '}
               {interconsulta?.prioridad || 'No especificada'}
             </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Fecha:</span>{' '}
+            <p className="text-muted-foreground">
+              <span className="font-medium text-foreground">Fecha:</span>{' '}
               {formatFecha(interconsulta?.fechaCreacion)}
             </p>
           </div>
@@ -184,7 +186,7 @@ const RespuestaVirtual: FC = () => {
               <h3 className="text-lg font-semibold mb-2">
                 Objetivo de la Consulta
               </h3>
-              <p className="bg-gray-50 p-4 rounded-lg">
+              <p className="bg-muted p-4 rounded-lg">
                 {interconsulta?.objetivoConsulta || 'No especificado'}
               </p>
             </div>
@@ -192,22 +194,24 @@ const RespuestaVirtual: FC = () => {
             {interconsulta?.estadoClinico && (
               <div>
                 <h3 className="text-lg font-semibold mb-2">Estado Clínico</h3>
-                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                <div className="space-y-4 bg-muted p-4 rounded-lg">
                   {interconsulta?.estadoClinico.signosVitales && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">
+                      <h4 className="font-medium text-foreground mb-2">
                         Signos Vitales
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <p className="text-gray-700">
-                          <span className="font-medium">Presión Arterial:</span>{' '}
+                        <p className="text-muted-foreground">
+                          <span className="font-medium text-foreground">
+                            Presión Arterial:
+                          </span>{' '}
                           {
                             interconsulta?.estadoClinico.signosVitales
                               .presionArterial
                           }
                         </p>
-                        <p className="text-gray-700">
-                          <span className="font-medium">
+                        <p className="text-muted-foreground">
+                          <span className="font-medium text-foreground">
                             Frecuencia Cardíaca:
                           </span>{' '}
                           {
@@ -215,8 +219,8 @@ const RespuestaVirtual: FC = () => {
                               .frecuenciaCardiaca
                           }
                         </p>
-                        <p className="text-gray-700">
-                          <span className="font-medium">
+                        <p className="text-muted-foreground">
+                          <span className="font-medium text-foreground">
                             Frecuencia Respiratoria:
                           </span>{' '}
                           {
@@ -224,15 +228,19 @@ const RespuestaVirtual: FC = () => {
                               .frecuenciaRespiratoria
                           }
                         </p>
-                        <p className="text-gray-700">
-                          <span className="font-medium">Temperatura:</span>{' '}
+                        <p className="text-muted-foreground">
+                          <span className="font-medium text-foreground">
+                            Temperatura:
+                          </span>{' '}
                           {
                             interconsulta?.estadoClinico.signosVitales
                               .temperatura
                           }
                         </p>
-                        <p className="text-gray-700">
-                          <span className="font-medium">Saturación O2:</span>{' '}
+                        <p className="text-muted-foreground">
+                          <span className="font-medium text-foreground">
+                            Saturación O2:
+                          </span>{' '}
                           {
                             interconsulta?.estadoClinico.signosVitales
                               .saturacionOxigeno
@@ -244,10 +252,10 @@ const RespuestaVirtual: FC = () => {
 
                   {interconsulta?.estadoClinico.subjetivo && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">
+                      <h4 className="font-medium text-foreground mb-1">
                         Evaluación Subjetiva
                       </h4>
-                      <p className="text-gray-700">
+                      <p className="text-muted-foreground">
                         {interconsulta?.estadoClinico.subjetivo}
                       </p>
                     </div>
@@ -256,7 +264,7 @@ const RespuestaVirtual: FC = () => {
                 {respuestaInterconsultaQuery.data ? (
                   <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-2">Respuesta</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-muted p-4 rounded-lg">
                       {respuestaInterconsultaQuery.data.respuesta}
                     </div>
                   </div>
@@ -275,7 +283,7 @@ const RespuestaVirtual: FC = () => {
                       href={file.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center justify-center text-start gap-2 bg-gray-50 hover:bg-gray-100 p-4 rounded-lg"
+                      className="flex items-center justify-center text-start gap-2 bg-muted hover:bg-muted/80 p-4 rounded-lg"
                     >
                       {file.url.split('.').pop() === 'pdf' ? (
                         <div className="flex justify-start gap-2 w-full">
@@ -295,38 +303,32 @@ const RespuestaVirtual: FC = () => {
               )}
           </div>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mt-6">
-              <div className="flex items-center">
-                <span>{'Esta interconsulta ya fue respondida'}</span>
-              </div>
-            </div>
+            <Alert variant="destructive" className="mt-6">
+              <AlertDescription>
+                Esta interconsulta ya fue respondida
+              </AlertDescription>
+            </Alert>
           )}
           {/* Área de respuesta */}
           {!respuestaInterconsultaQuery.data ? (
-            <div className="bg-white p-6 rounded-lg shadow mt-6">
+            <div className="bg-background p-6 rounded-lg shadow mt-6">
               <h2 className="text-xl font-semibold mb-4">
                 Escribir Respuesta Virtual
               </h2>
-              <textarea
-                className="w-full min-h-[200px] p-4 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              <Textarea
+                className="min-h-[200px] mb-4"
                 placeholder="Escriba su respuesta aquí..."
                 value={respuesta}
                 onChange={(e) => setRespuesta(e.target.value)}
               />
-              <button
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                onClick={() => handleSubmit()}
-              >
-                Enviar Respuesta
-              </button>
+              <Button onClick={() => handleSubmit()}>Enviar Respuesta</Button>
             </div>
           ) : (
             <div className="mt-6 flex w-full print:hidden">
-              <Button
-                text="Imprimir respuesta"
-                icon={<Printer />}
-                onClick={() => reactToPrintFn()}
-              />
+              <Button onClick={() => reactToPrintFn()}>
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimir respuesta
+              </Button>
             </div>
           )}
         </div>

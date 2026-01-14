@@ -15,9 +15,26 @@ import moment from 'moment'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import interconsultaEndpoints from '@/lib/endpoints/interconsultaEndpoints'
 import { useConfig } from '@/config/ConfigProvider'
-import { Button } from '../button/Button'
-import ConfirmDialog from '../confirm-dialog/ConfirmDialog'
-import Spinner from '../spinner/Spinner'
+import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Spinner } from '@/components/ui/spinner'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tooltip } from 'react-tooltip'
 const jwt = require('jsonwebtoken')
 
@@ -110,7 +127,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
       EN_PROCESO: 'bg-blue-100 text-blue-800 border-blue-200',
       COMPLETADA: 'bg-green-100 text-green-800 border-green-200',
     }
-    return colors[estado] || 'bg-gray-100 text-gray-800 border-gray-200'
+    return colors[estado] || 'bg-muted text-muted-foreground border-border'
   }
 
   const getPriorityIcon = (prioridad: string) => {
@@ -120,7 +137,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
           <AlertTriangle
             data-tooltip-id={prioridad}
             data-tooltip-content="Prioridad alta"
-            className="h-5 w-5 text-red-500"
+            className="h-5 w-5 text-destructive"
           />
         )
       case 'MEDIA':
@@ -165,7 +182,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
     interconsultasRecibidas.length === 0
   ) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-muted/30">
         <div className="container mx-auto p-4">
           <Spinner />
         </div>
@@ -175,21 +192,19 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-muted/30">
         <div className="container mx-auto p-4">
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-            <div className="flex items-center">
-              <AlertTriangle className="h-5 w-5 mr-2" />
-              <span>{error}</span>
-            </div>
-          </div>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col bg-white transition-all duration-300 border border-gray-100 hover:border-gray-200">
+    <div className="flex flex-col bg-background transition-all duration-300 border border-border hover:border-border/80">
       <div className="p-4">
         <div
           className="cursor-pointer select-none"
@@ -202,7 +217,7 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                 <h2
                   data-tooltip-id={interconsulta.paciente.nombre}
                   data-tooltip-content={interconsulta.paciente.nombre}
-                  className="text-black font-semibold truncate"
+                  className="text-foreground font-semibold truncate"
                 >
                   {interconsulta.paciente?.nombre}
                 </h2>
@@ -210,13 +225,13 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                 <Tooltip id={interconsulta.paciente.nombre} />
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-gray-800">
+                <p className="text-sm text-foreground">
                   HC: {interconsulta.paciente?.numeroHistoria}
                 </p>
-                <p className="text-sm text-gray-800">
+                <p className="text-sm text-foreground">
                   De: {interconsulta?.servicioSolicitante?.nombre}
                 </p>
-                <p className="text-sm text-gray-800">
+                <p className="text-sm text-foreground">
                   Para: {interconsulta?.servicioDestino?.nombre}
                 </p>
               </div>
@@ -229,119 +244,125 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
               >
                 {interconsulta.estado}
               </span>
-              <span className="text-xs text-gray-500 text-end">
+              <span className="text-xs text-muted-foreground text-end">
                 {moment(interconsulta.fechaCreacion).format('DD/MM/YYYY')}
               </span>
               {expanded ? (
-                <ChevronUp className="h-5 w-5 text-gray-400" />
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
               ) : (
-                <ChevronDown className="h-5 w-5 text-gray-400" />
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
               )}
             </div>
           </div>
         </div>
 
         {expanded && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-border">
             <div className="w-full pb-4">
               {respuestaQuery.data?.respuesta ? (
                 <div className="flex flex-col-reverse md:flex-row justify-end gap-4">
                   {decoded?.role === 'ADMIN' && (
                     <Button
-                      text="Borrar interconsulta"
-                      variant="danger"
-                      style="flex-1 md:flex-initial"
-                      icon={<Trash2 className="h-4 w-4" />}
+                      variant="destructive"
+                      className="flex-1 md:flex-initial"
                       onClick={() => setOpenDialog(true)}
-                    />
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Borrar interconsulta
+                    </Button>
                   )}
                   <Button
-                    text="Ver respuesta"
-                    icon={<Eye className="h-4 w-4" />}
-                    style="flex-1 md:flex-initial"
+                    className="flex-1 md:flex-initial"
                     onClick={() =>
                       router.push(`/interconsulta/${interconsulta._id}`)
                     }
-                  />
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Ver respuesta
+                  </Button>
                 </div>
               ) : (
                 <>
                   {interconsulta.estado === 'EN_PROCESO' ? (
-                    <div className="border-b border-gray-100 pb-4 flex flex-col-reverse md:flex-row justify-end gap-2">
+                    <div className="border-b border-border pb-4 flex flex-col-reverse md:flex-row justify-end gap-2">
                       {decoded?.role === 'ADMIN' && (
                         <Button
-                          text="Borrar interconsulta"
-                          variant="danger"
-                          style="flex-1 md:flex-initial"
-                          icon={<Trash2 className="h-4 w-4" />}
+                          variant="destructive"
+                          className="flex-1 md:flex-initial"
                           onClick={() => setOpenDialog(true)}
-                        />
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Borrar interconsulta
+                        </Button>
                       )}
                       <Button
-                        text="Respuesta Física"
                         variant="secondary"
-                        style="flex-1 md:flex-initial"
-                        icon={<CheckCircle2 className="h-4 w-4" />}
+                        className="flex-1 md:flex-initial"
                         onClick={(e: any) => {
                           e.preventDefault()
                           e.stopPropagation()
                           console.log('Respuesta Física clickeada')
                         }}
-                      />
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Respuesta Física
+                      </Button>
                       <Button
-                        text="Respuesta Virtual"
-                        style="flex-1 md:flex-initial"
-                        icon={<MessageSquare className="h-4 w-4" />}
+                        className="flex-1 md:flex-initial"
                         onClick={() =>
                           router.push(`/interconsulta/${interconsulta._id}`)
                         }
-                      />
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Respuesta Virtual
+                      </Button>
                     </div>
                   ) : decoded?.role === 'ADMIN' ? (
                     <div className="flex justify-end">
                       <Button
-                        text="Borrar interconsulta"
-                        variant="danger"
-                        style="flex-1 md:flex-initial"
-                        icon={<Trash2 className="h-4 w-4" />}
+                        variant="destructive"
+                        className="flex-1 md:flex-initial"
                         onClick={() => setOpenDialog(true)}
-                      />
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Borrar interconsulta
+                      </Button>
                     </div>
                   ) : null}
                 </>
               )}
             </div>
             <div className="grid gap-6">
-              <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between bg-muted p-4 rounded-lg border border-border">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-gray-900">
+                  <h3 className="text-sm font-semibold text-foreground">
                     Estado de la Interconsulta
                   </h3>
-                  <p className="text-sm text-gray-800">
+                  <p className="text-sm text-foreground">
                     Estado actual: {interconsulta.estado}
                   </p>
                 </div>
-                <select
+                <Select
                   value={interconsulta.estado}
-                  onChange={(e) => handleStatusChange(e.target.value)}
+                  onValueChange={(value) => handleStatusChange(value)}
                   disabled={interconsultaStateMutation.isPending}
-                  className={`
-                      rounded-md border border-gray-300 px-3 py-2 text-gray-700 
-                      focus:outline-none focus:ring-2 focus:ring-blue-500
-                      ${interconsultaStateMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}
-                    `}
                 >
-                  <option value="PENDIENTE">Pendiente</option>
-                  <option value="EN_PROCESO">En Proceso</option>
-                  <option value="COMPLETADA">Completada</option>
-                </select>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PENDIENTE">Pendiente</SelectItem>
+                    <SelectItem value="EN_PROCESO">En Proceso</SelectItem>
+                    <SelectItem value="COMPLETADA">Completada</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                <h3 className="text-sm font-semibold text-foreground mb-2">
                   Objetivo de la Consulta
                 </h3>
-                <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded">
+                <p className="text-sm text-foreground bg-muted p-3 rounded">
                   {interconsulta.objetivoConsulta}
                 </p>
               </div>
@@ -349,28 +370,28 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
               {interconsulta.estadoClinico && (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                    <h3 className="text-sm font-semibold text-foreground mb-2">
                       Estado Clínico
                     </h3>
-                    <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded">
+                    <p className="text-sm text-foreground bg-muted p-3 rounded">
                       {interconsulta.estadoClinico.subjetivo}
                     </p>
                   </div>
 
                   {interconsulta.estadoClinico.signosVitales && (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                      <h3 className="text-sm font-semibold text-foreground mb-2">
                         Signos Vitales
                       </h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         {Object.entries(
                           interconsulta.estadoClinico.signosVitales
                         ).map(([key, value]) => (
-                          <div key={key} className="bg-gray-50 p-3 rounded">
-                            <p className="text-xs text-gray-700 mb-1">
+                          <div key={key} className="bg-muted p-3 rounded">
+                            <p className="text-xs text-muted-foreground mb-1">
                               {formatSignoVitalLabel(key)}
                             </p>
-                            <p className="text-sm font-medium text-black">
+                            <p className="text-sm font-medium text-foreground">
                               {value}
                             </p>
                           </div>
@@ -385,15 +406,15 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
                 <div className="grid md:grid-cols-2 gap-4">
                   {interconsulta.laboratorios && (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                      <h3 className="text-sm font-semibold text-foreground mb-2">
                         Laboratorios
                       </h3>
-                      <div className="bg-gray-50 p-3 rounded space-y-2">
-                        <p className="text-sm text-black">
+                      <div className="bg-muted p-3 rounded space-y-2">
+                        <p className="text-sm text-foreground">
                           {interconsulta.laboratorios.resultados}
                         </p>
                         {interconsulta.laboratorios.observaciones && (
-                          <p className="text-sm text-black">
+                          <p className="text-sm text-foreground">
                             Nota: {interconsulta.laboratorios.observaciones}
                           </p>
                         )}
@@ -403,14 +424,14 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
 
                   {interconsulta.imagenologia && (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                      <h3 className="text-sm font-semibold text-foreground mb-2">
                         Imagenología
                       </h3>
-                      <div className="bg-gray-50 p-3 rounded space-y-2">
-                        <p className="text-sm font-medium text-black">
+                      <div className="bg-muted p-3 rounded space-y-2">
+                        <p className="text-sm font-medium text-foreground">
                           {interconsulta.imagenologia.tipo}
                         </p>
-                        <p className="text-sm text-black">
+                        <p className="text-sm text-foreground">
                           {interconsulta.imagenologia.hallazgosRelevantes}
                         </p>
                       </div>
@@ -422,13 +443,26 @@ const InterconsultaCard: FC<InterconsultaCardProps> = ({
           </div>
         )}
       </div>
-      <ConfirmDialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        onConfirm={() => handleDeleteInterconsulta()}
-        title="Borrar interconsulta"
-        action="borrar la interconsulta"
-      />
+      <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Borrar interconsulta</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Está seguro/a de que quiere borrar la interconsulta? Esta acción
+              es irreversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleDeleteInterconsulta()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Aceptar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { FC, PropsWithChildren, ReactNode, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { cn } from '@/lib/cn'
 
 type CollapsibleSectionProps = {
   title: string
@@ -15,35 +16,38 @@ const CollapsibleSection: FC<PropsWithChildren<CollapsibleSectionProps>> = (
 
   return (
     <>
-      <div className="bg-white md:rounded-lg md:shadow-sm md:border border-gray-100 overflow-hidden">
+      <div className="bg-background md:rounded-lg md:shadow-sm md:border border-border overflow-hidden">
         <button
           className="w-full px-4 py-4 flex justify-between items-center"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex items-center justify-around gap-3">
-            {count && (
-              <div className="h-4 w-4 p-3 flex items-center justify-center bg-blue-100 rounded-full text-sm text-blue-600">
+            {count !== undefined && (
+              <div className="h-4 w-4 p-3 flex items-center justify-center bg-primary/10 rounded-full text-sm text-primary">
                 {count}
               </div>
             )}
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
           </div>
           <div className="flex justify-end items-center">
             {isExpanded ? (
               !icon ? (
-                <ChevronUp className="h-5 w-5 text-gray-400" />
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
               ) : (
                 icon
               )
             ) : !icon ? (
-              <ChevronDown className="h-5 w-5 text-gray-400" />
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             ) : (
               icon
             )}
           </div>
         </button>
         <div
-          className={`border-t border-gray-100 ${!isExpanded ? 'max-h-0' : 'max-h-[1000px]'} transition-all ease-in-out duration-500 overflow-hidden`}
+          className={cn(
+            'border-t border-border transition-all ease-in-out duration-500 overflow-hidden',
+            !isExpanded ? 'max-h-0' : 'max-h-[1000px]'
+          )}
         >
           {children}
         </div>
